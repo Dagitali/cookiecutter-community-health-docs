@@ -1,15 +1,38 @@
 {
-    "project_name": "My Project",
-    "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '-') }}",
-    "owner": "My Organization",
-    "support_email": "support@example.com",
-    "year": "2026",
-    "git_hosting_service": [
-        "GitHub",
-        "GitLab",
-        "Bitbucket",
-        "Azure DevOps"
-    ],
-    "include_issue_templates": "{% if cookiecutter.git_hosting_service == 'GitHub' %}yes{% else %}no{% endif %}",
-    "include_pull_request_template": "{% if cookiecutter.git_hosting_service == 'GitHub' %}yes{% else %}no{% endif %}"
+  "project_name": "My Project",
+  "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '-') }}",
+  "project_description": "A short description of the project.",
+  "owner": "My Organization",
+  "repository_url": "https://github.com/my-organization/my-project",
+  "default_branch": "main",
+  "development_branch": "develop",
+  "branch_model": [
+    "GitFlow",
+    "GitHub Flow"
+  ],
+  "support_email": "support@example.com",
+  "security_email": "{{ cookiecutter.support_email }}",
+  "conduct_email": "{{ cookiecutter.support_email }}",
+  "sponsor_url": "",
+  "license_name": [
+    "Apache-2.0",
+    "BSD-3-Clause",
+    "MIT",
+    "Proprietary"
+  ],
+  "year": "{% now 'local', '%Y' %}",
+  "git_hosting_service": [
+    "Azure DevOps",
+    "Bitbucket",
+    "GitHub",
+    "GitLab"
+  ],
+  "include_issue_templates": "{% if cookiecutter.git_hosting_service == 'GitHub' %}yes{% else %}no{% endif %}",
+  "include_pull_request_template": "{% if cookiecutter.git_hosting_service == 'GitHub' %}yes{% else %}no{% endif %}",
+  "include_release_docs": "yes",
+  "include_branch_protection_docs": "yes",
+  "include_maintainer_runbooks": "yes",
+  "include_references": "yes",
+  "include_agents_md": "yes",
+  "include_funding": "{% if cookiecutter.git_hosting_service == 'GitHub' and cookiecutter.sponsor_url %}yes{% else %}no{% endif %}"
 }
