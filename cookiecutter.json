@@ -3,5 +3,13 @@
     "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '-') }}",
     "owner": "My Organization",
     "support_email": "support@example.com",
-    "year": "2026"
+    "year": "2026",
+    "git_hosting_service": [
+        "GitHub",
+        "GitLab",
+        "Bitbucket",
+        "Azure DevOps"
+    ],
+    "include_issue_templates": "{% if cookiecutter.git_hosting_service == 'GitHub' %}yes{% else %}no{% endif %}",
+    "include_pull_request_template": "{% if cookiecutter.git_hosting_service == 'GitHub' %}yes{% else %}no{% endif %}"
 }
