@@ -29,7 +29,7 @@ support channels, release expectations, and expected behavior.
 
 ## Contributing
 
-See [CONTRIBUTING.md] before opening substantial issues or pull requests.
+See [CONTRIBUTING.md] before opening substantial issues or {{ cookiecutter.__change_request_name }}s.
 
 ## Support
 
