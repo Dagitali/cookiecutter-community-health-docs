@@ -97,9 +97,6 @@ add-ignore = [
   "D400",  # Allow non-period docstring summary endings
 ]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-
 [tool.setuptools]
 py-modules = []
 
