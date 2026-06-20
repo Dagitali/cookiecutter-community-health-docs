@@ -6,14 +6,22 @@ labels: enhancement
 assignees: ""
 ---
 
-## Problem statement
+## Problem Statement
 
 Describe the problem this request solves.
 
-## Proposed solution
+## Proposed Solution
 
 Describe your proposed change.
+
+## Expected Users
+
+Describe who benefits from the change.
 
 ## Alternatives considered
 
 Describe alternatives you've considered.
+
+## Compatibility
+
+Describe any compatibility, migration, or support-policy impact.

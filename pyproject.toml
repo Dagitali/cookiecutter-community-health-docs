@@ -1,0 +1,104 @@
+# pyproject.toml
+# cookiecutter-repo-governance
+#
+# Copyright © 2026 Dagitali LLC. All rights reserved.
+#
+# Python project configuration for maintaining this Cookiecutter template.
+#
+# Responsibilities
+# - Define build-system requirements for editable installs used by tests and CI.
+# - Declare lightweight project metadata for this template repository.
+# - Declare development and test dependencies for validating rendered projects.
+# - Configure Python tooling that reads project settings from pyproject.toml.
+#
+# Maintainer Notes
+# - This repository is a Cookiecutter template, not an importable runtime
+#   package distributed to PyPI.
+# - Keep generated-project metadata inside the template directory, not here.
+# - Keep this file focused on template maintenance, CI, and render tests.
+#
+# References
+# - setuptools pyproject configuration: https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+# - pyproject.toml specification: https://packaging.python.org/en/latest/specifications/pyproject-toml/
+# - PEP 621 project metadata: https://peps.python.org/pep-0621/
+
+[build-system]
+# Use a modern setuptools that supports PEP 621 & editable installs (PEP 660).
+requires = ["setuptools>=80", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cookiecutter-repo-governance"
+dynamic = ["version"]
+description = "Cookiecutter template for rendering project-tailored software repository governance files."
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+  {name = "Dagitali LLC"}
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Code Generators",
+  "Topic :: Software Development :: Project Governance",
+]
+dependencies = [
+
+]
+
+[project.optional-dependencies]
+# Development-only tools (install with: pip install -e .[dev])
+dev = [
+  "autopep8>=2.3.2",
+  "build>=1.5.0",
+  "cookiecutter>=2.6",
+  "mypy>=2.1.0",
+  "pydoclint>=0.8.4",
+  "pydocstyle>=6.3.0",
+  "pytest>=9.0.3",
+  "pytest-cov>=7.1.0",
+  "ruff>=0.15.14",
+]
+test = [
+  "cookiecutter>=2.6",
+  "pytest>=9.0.3",
+  "pytest-cov>=7.1.0",
+]
+
+[project.urls]
+Donate = "https://buymeacoffee.com/djrlj694"
+Funding = "https://github.com/sponsors/Dagitali"
+Homepage = "https://github.com/Dagitali/cookiecutter-repo-governance"
+Repository = "https://github.com/Dagitali/cookiecutter-repo-governance"
+
+# Docstring linting configuration for Python hooks and render tests.
+
+[tool.pydoclint]
+style = "numpy"
+require-return-section-when-returning-nothing = false
+allow-init-docstring = true
+check-return-types = true
+check-types-decorators = true
+skip-checking-short-docstrings = true
+
+[tool.pydocstyle]
+convention = "numpy"
+match = '(?!.*__pycache__|.*\.egg-info).+\.py$'
+add-ignore = [
+  # Docstrings follow NumPy style, but these pragmatic exceptions are
+  # intentionally tolerated for readability and legacy consistency.
+  "D105",  # Missing docstring in magic method
+  "D200",  # Allow wrapped single-sentence docstrings
+  "D205",  # Allow summary/description without a forced blank separator
+  "D400",  # Allow non-period docstring summary endings
+]
+
+[tool.setuptools]
+py-modules = []
+
+[tool.setuptools_scm]
+fallback_version = "0.0.0"

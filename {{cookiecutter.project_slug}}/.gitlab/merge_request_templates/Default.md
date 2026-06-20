@@ -1,8 +1,13 @@
+# Merge Request
+
+- [Summary](#summary)
+- [Changes](#changes)
+- [Validation](#validation)
+- [Checklist](#checklist)
+
 ## Summary
 
-Describe the goal of this pull request.
-
-- Related issue:
+Describe the goal of this merge request.
 
 ## Changes
 
@@ -11,11 +16,6 @@ Describe the goal of this pull request.
 ## Validation
 
 Describe how this change was tested.
-
-## Release Notes
-
-- [ ] No user-facing release note needed
-- [ ] Release note required
 
 ## Checklist
 

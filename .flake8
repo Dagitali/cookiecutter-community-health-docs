@@ -1,0 +1,41 @@
+# .flake8
+# cookiecutter-repo-governance
+#
+# Copyright © 2026 Dagitali LLC. All rights reserved.
+#
+# Flake8 configuration.
+#
+# Flake8 is a Python linter that checks for style and programming errors. This
+# configuration file defines the Flake8 settings for the
+# cookiecutter-repo-governance project. It is intended to be used in
+# conjunction with the canonical Ruff style policy defined in `.ruff.toml`.
+#
+# Responsibilities
+# - Mirror the subset of the repository's canonical Ruff style policy that
+#   Flake8 can understand.
+# - Support external tools or editors that still invoke Flake8 directly.
+#
+# Maintainer Notes
+# - `.ruff.toml` remains the canonical lint/format source of truth.
+# - Keep the overlapping settings here aligned with `.ruff.toml`.
+# - Flake8 does not enforce Ruff's formatter choices such as single quotes,
+#   import sorting, or pyupgrade rewrites without separate plugins.
+#
+# References
+# - Flake8 configuration reference: https://flake8.pycqa.org/en/latest/user/configuration.html
+# - Pycodestyle error-code reference: https://pycodestyle.pycqa.org/en/latest/intro.html#error-codes
+
+[flake8]
+max-line-length = 88
+# extend-select = E203
+exclude =
+    .git,
+    __pycache__,
+    build,
+    cookiecutter_community_health_docs.egg-info,
+    dist,
+    temp,
+    {{cookiecutter.project_slug}},
+    *_FIXED.py,
+    *_NEW.py,
+    *_ORIG.py

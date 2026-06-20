@@ -10,16 +10,26 @@ assignees: ""
 
 A clear and concise description of the bug.
 
-## Steps to reproduce
+## Steps to Reproduce
 
 1.
 2.
 3.
 
-## Expected behavior
+## Expected Behavior
 
 What you expected to happen.
 
-## Additional context
+## Environment
+
+- Version:
+- Operating system:
+- Runtime or browser:
+
+## Workaround
+
+Describe any known workaround.
+
+## Additional Context
 
 Add any other context about the problem here.

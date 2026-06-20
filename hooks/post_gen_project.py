@@ -1,40 +1,116 @@
-from pathlib import Path
+"""
+:mod:`post_gen_project` module.
+
+Post-generation cleanup for rendered community health projects.
+"""
+
 import shutil
+from pathlib import Path
+
+# SECTION: CONSTANTS ======================================================== #
 
 
 PROJECT_ROOT = Path.cwd()
 
 
-def as_bool(value: str) -> bool:
-    return value.strip().lower() in {"yes", "y", "true", "1"}
+# SECTION: INTERNAL FUNCTIONS =============================================== #
 
 
-def remove_path(path: Path) -> None:
+def _as_bool(
+    value: str,
+) -> bool:
+    """Convert a string value to a boolean."""
+    return value.strip().lower() in {'yes', 'y', 'true', '1'}
+
+
+def _remove_path(
+    path: Path,
+) -> None:
+    """Remove a file or directory at the given path."""
     if path.is_dir():
         shutil.rmtree(path)
     elif path.exists():
         path.unlink()
 
 
-def main() -> None:
-    git_hosting_service = "{{ cookiecutter.git_hosting_service }}"
-    include_issue_templates = as_bool("{{ cookiecutter.include_issue_templates }}")
-    include_pull_request_template = as_bool("{{ cookiecutter.include_pull_request_template }}")
+def _remove_empty_directory(
+    path: Path,
+) -> None:
+    """Remove the directory at the given path if it is empty."""
+    if path.exists() and path.is_dir() and not any(path.iterdir()):
+        path.rmdir()
 
-    if git_hosting_service != "GitHub":
+
+# SECTION: FUNCTIONS ======================================================== #
+
+
+def main() -> None:
+    """Main entry point for post-generation cleanup."""
+    git_hosting_service = '{{ cookiecutter.git_hosting_service }}'
+    include_issue_templates = _as_bool('{{ cookiecutter.include_issue_templates }}')
+    include_pull_request_template = _as_bool(
+        '{{ cookiecutter.include_pull_request_template }}',
+    )
+    include_release_docs = _as_bool('{{ cookiecutter.include_release_docs }}')
+    include_branch_protection_docs = _as_bool(
+        '{{ cookiecutter.include_branch_protection_docs }}',
+    )
+    include_maintainer_runbooks = _as_bool(
+        '{{ cookiecutter.include_maintainer_runbooks }}',
+    )
+    include_references = _as_bool('{{ cookiecutter.include_references }}')
+    include_agents_md = _as_bool('{{ cookiecutter.include_agents_md }}')
+    include_funding = _as_bool('{{ cookiecutter.include_funding }}')
+
+    if git_hosting_service != 'GitHub':
         include_issue_templates = False
         include_pull_request_template = False
 
-    if not include_issue_templates:
-        remove_path(PROJECT_ROOT / ".github" / "ISSUE_TEMPLATE")
+    if git_hosting_service != 'GitHub':
+        _remove_path(PROJECT_ROOT / '.github')
 
-    if not include_pull_request_template:
-        remove_path(PROJECT_ROOT / ".github" / "PULL_REQUEST_TEMPLATE.md")
+    if git_hosting_service != 'GitLab':
+        _remove_path(PROJECT_ROOT / '.gitlab')
 
-    github_dir = PROJECT_ROOT / ".github"
-    if github_dir.exists() and not any(github_dir.iterdir()):
-        github_dir.rmdir()
+    if git_hosting_service != 'Bitbucket':
+        _remove_path(PROJECT_ROOT / '.bitbucket')
+
+    if git_hosting_service != 'Azure DevOps':
+        _remove_path(PROJECT_ROOT / '.azuredevops')
+
+    if git_hosting_service == 'GitHub' and not include_issue_templates:
+        _remove_path(PROJECT_ROOT / '.github' / 'ISSUE_TEMPLATE')
+
+    if git_hosting_service == 'GitHub' and not include_pull_request_template:
+        _remove_path(PROJECT_ROOT / '.github' / 'PULL_REQUEST_TEMPLATE.md')
+
+    if not include_release_docs:
+        _remove_path(PROJECT_ROOT / 'RELEASE-POLICY.md')
+        _remove_path(PROJECT_ROOT / 'RELEASE-CHECKLIST.md')
+        if git_hosting_service == 'GitHub':
+            _remove_path(PROJECT_ROOT / '.github' / 'RELEASE-NOTES-TEMPLATE.md')
+
+    if git_hosting_service == 'GitHub' and not include_branch_protection_docs:
+        _remove_path(PROJECT_ROOT / '.github' / 'BRANCH-PROTECTION.md')
+
+    if git_hosting_service == 'GitHub' and not include_maintainer_runbooks:
+        _remove_path(PROJECT_ROOT / '.github' / 'MAINTAINER-RUNBOOKS.md')
+
+    if not include_references:
+        _remove_path(PROJECT_ROOT / 'REFERENCES.md')
+
+    if not include_agents_md:
+        _remove_path(PROJECT_ROOT / 'AGENTS.md')
+
+    if git_hosting_service == 'GitHub' and not include_funding:
+        _remove_path(PROJECT_ROOT / '.github' / 'FUNDING.yml')
+
+    github_dir = PROJECT_ROOT / '.github'
+    _remove_empty_directory(github_dir)
 
 
-if __name__ == "__main__":
+# SECTION: MAIN ENTRY POINT ================================================= #
+
+
+if __name__ == '__main__':
     main()
