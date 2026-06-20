@@ -8,7 +8,7 @@
   - [`git`](#git)
   - [GitFlow](#gitflow)
   - [GitHub Flow](#github-flow)
-  - [{{ cookiecutter.git\_hosting\_service }}](#-cookiecuttergit_hosting_service-)
+  - [{{ cookiecutter.git_hosting_service }}](#{{ cookiecutter.git_hosting_service.lower().replace(' ', '-') }})
 - [Programming Languages](#programming-languages)
   - [Python](#python)
 - [Tools](#tools)
@@ -17,6 +17,7 @@
   - [Community Health](#community-health)
   - [Continuous Integration and Delivery](#continuous-integration-and-delivery)
   - [Licensing](#licensing)
+  - [Logging](#logging)
   - [Release Notes and Changelogs](#release-notes-and-changelogs)
   - [Security](#security)
   - [Versioning](#versioning)
@@ -44,30 +45,32 @@
 
 ### `git`
 
-1. <https://git-scm.com/book>: Pro Git book
-2. <https://git-scm.com/docs>: `git` documentation
-3. <https://git-scm.com/docs/gitattributes>: `gitattributes` documentation
-4. <https://git-scm.com/docs/gitignore>: `gitignore` documentation
-5. <https://www.atlassian.com/git/tutorials/setting-up-a-repository/git-config>
-6. <https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup>
-7. <https://www.atlassian.com/git/tutorials/inspecting-a-repository/git-tag>
-8. <https://stackoverflow.com/questions/63241071/automate-git-merge-commit-message>
-9. <https://fileinfo.com/extension/gitattributes>
+1. <https://fileinfo.com/extension/gitattributes>: `.gitattributes` file extension reference
+2. <https://git-scm.com>: `git`
+3. <https://git-scm.com/book>: Pro Git book
+4. <https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup>: First-time Git setup
+5. <https://git-scm.com/docs>: `git` documentation
+6. <https://git-scm.com/docs/gitattributes>: `gitattributes` documentation
+7. <https://git-scm.com/docs/gitignore>: `gitignore` documentation
+8. <https://gitforwindows.org>: Git for Windows
+9. <https://github.com/git/git>: `git` source repository
+10. <https://gitignore.io>: `.gitignore` template generator
+11. <https://stackoverflow.com/questions/63241071/automate-git-merge-commit-message>: Automating Git merge commit messages
+12. <https://www.atlassian.com/git/tutorials/inspecting-a-repository/git-tag>: Git tag tutorial
+13. <https://www.atlassian.com/git/tutorials/setting-up-a-repository/git-config>: Git configuration tutorial
 
 ### GitFlow
 
-1. <https://nvie.com/posts/a-successful-git-branching-model/>: A successful Git branching model
-2. <https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow>: Atlassian GitFlow workflow guide
-3. <https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow>
-2. <https://github.com/nvie/gitflow>
-3. <https://gist.github.com/JamesMGreene/cdd0ac49f90c987e45ac>
-4. <https://medium.com/@roalcantara/a-guide-to-improve-the-git-hub-flow-and-commits-messages-b495461e1115>
-5. <https://nvie.com/posts/a-successful-git-branching-model>
-6. <https://git-flow.readthedocs.io/en/latest/releases.html>
+1. <https://git-flow.readthedocs.io/en/latest/releases.html>: `git-flow` release command documentation
+2. <https://github.com/nvie/gitflow>: `gitflow` extension repository
+3. <https://gist.github.com/JamesMGreene/cdd0ac49f90c987e45ac>: GitFlow branch model summary
+4. <https://nvie.com/posts/a-successful-git-branching-model/>: A successful Git branching model
+5. <https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow>: Atlassian GitFlow workflow guide
 
 ### GitHub Flow
 
 1. <https://docs.github.com/en/get-started/using-github/github-flow>: GitHub Flow
+2. <https://medium.com/@roalcantara/a-guide-to-improve-the-git-hub-flow-and-commits-messages-b495461e1115>: GitHub Flow and commit message guidance
 
 ### {{ cookiecutter.git_hosting_service }}
 
@@ -96,30 +99,43 @@
 
 1. <https://docs.python.org/3/>: Python documentation
 2. <https://packaging.python.org/>: Python Packaging User Guide
+
 ## Tools
 
 ### pre-commit
 
-1. <https://github.com/pre-commit/pre-commit>: pre-commit GitHub repository
-2. <https://pre-commit.com>: pre-commit documentation
+1. <https://github.com/ScribeMD/pre-commit-hooks/blob/main/.pre-commit-config.yaml>: pre-commit configuration example
+2. <https://github.com/pre-commit/pre-commit>: pre-commit repository
+3. <https://pre-commit.com>: pre-commit documentation
 
 ## Software Engineering
 
 ### Community Health
 
-1. <https://docs.github.com/en/communities>: GitHub: Building a strong community
-2. <https://www.bestpractices.dev/>: OpenSSF Best Practices Badge Program
-3. <https://www.contributor-covenant.org/>: Contributor Covenant
+1. <https://docs.github.com/en/communities>: GitHub community documentation
+2. <https://docs.github.com/en/github/building-a-strong-community>: GitHub strong community guide
+3. <https://lab.github.com/githubtraining/introduction-to-github>: Introduction to GitHub training
+4. <https://www.bestpractices.dev/>: OpenSSF Best Practices Badge Program
+5. <https://www.contributor-covenant.org/>: Contributor Covenant
 
 ### Continuous Integration and Delivery
 
 1. <https://docs.github.com/en/actions>: GitHub Actions documentation
-2. <https://shields.io/>: Shields.io
+2. <https://en.wikipedia.org/wiki/CI/CD>: CI/CD
+3. <https://github.com/badges/shields>: Shields badge service repository
+4. <https://naereen.github.io/badges>: Markdown badge examples
+5. <https://shields.io/>: Shields.io
+6. <https://shields.io/category/version>: Shields.io version badges
 
 ### Licensing
 
 1. <https://choosealicense.com/>: Choose a License
 2. <https://spdx.org/licenses/>: SPDX License List
+
+### Logging
+
+1. <https://en.wikipedia.org/wiki/ISO_8601>: ISO 8601
+2. <https://www.scalyr.com/blog/log-formatting-best-practices-readable>: Log formatting best practices
 
 ### Release Notes and Changelogs
 
