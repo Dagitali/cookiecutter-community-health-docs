@@ -1,5 +1,5 @@
 # .flake8
-# cookiecutter-community-health-docs
+# cookiecutter-repo-governance
 #
 # Copyright © 2026 Dagitali LLC. All rights reserved.
 #
@@ -7,9 +7,8 @@
 #
 # Flake8 is a Python linter that checks for style and programming errors. This
 # configuration file defines the Flake8 settings for the
-# cookiecutter-community-health-docs project. It is intended to be used in
-# conjunction with the canonical Ruff style policy
-# defined in `.ruff.toml`.
+# cookiecutter-repo-governance project. It is intended to be used in
+# conjunction with the canonical Ruff style policy defined in `.ruff.toml`.
 #
 # Responsibilities
 # - Mirror the subset of the repository's canonical Ruff style policy that
