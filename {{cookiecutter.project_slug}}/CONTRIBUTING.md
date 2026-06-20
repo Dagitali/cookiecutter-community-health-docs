@@ -11,7 +11,7 @@ email, or any other method with the owners of this repository before making a ch
 
 - [Ways to Contribute](#ways-to-contribute)
 - [How to Contribute](#how-to-contribute)
-- [{{ cookiecutter.\_\_change\_request\_name | title }} Process](#-cookiecutter__change_request_name--title--process)
+- [{{ cookiecutter.__change_request_name | title }} Process](#{{ cookiecutter.__change_request_name.replace(' ', '-') }}-process)
 - [Protected-Branch Workflow](#protected-branch-workflow)
   - [Preferred Flow](#preferred-flow)
   - [Recommended Branch Mapping](#recommended-branch-mapping)
