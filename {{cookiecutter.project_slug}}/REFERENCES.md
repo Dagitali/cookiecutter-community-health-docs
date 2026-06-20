@@ -8,7 +8,7 @@
   - [`git`](#git)
   - [GitFlow](#gitflow)
   - [GitHub Flow](#github-flow)
-  - [{{ cookiecutter.git\_hosting\_service }}](#-cookiecuttergit_hosting_service-)
+  - [{{ cookiecutter.git_hosting_service }}](#{{ cookiecutter.git_hosting_service.lower().replace(' ', '-') }})
 - [Programming Languages](#programming-languages)
   - [Python](#python)
 - [Tools](#tools)
