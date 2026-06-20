@@ -1,5 +1,5 @@
 # .ruff.toml
-# cookiecutter-community-health-docs
+# cookiecutter-repo-governance
 #
 # Copyright © 2026 Dagitali LLC. All rights reserved.
 #
@@ -7,7 +7,7 @@
 #
 # Ruff is a fast Python linter and auto-formatter that can enforce a wide range
 # of style and correctness rules. This configuration file defines the canonical
-# Ruff linting policy for the cookiecutter-community-health-docs project.
+# Ruff linting policy for the cookiecutter-repo-governance project.
 #
 # Responsibilities
 # - Define the repository's canonical Ruff linting policy for Python sources.

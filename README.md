@@ -1,6 +1,6 @@
-# cookiecutter-community-health-docs
+# cookiecutter-repo-governance
 
-A Cookiecutter template for generating project-tailored community health documents.
+A Cookiecutter template for rendering project-tailored software repository governance files.
 
 - [Generated files](#generated-files)
 - [Inputs](#inputs)
@@ -79,7 +79,7 @@ renders `merge request`; GitHub, Bitbucket, and Azure DevOps render `pull reques
 
 ```bash
 pip install cookiecutter
-cookiecutter gh:Dagitali/cookiecutter-community-health-docs
+cookiecutter gh:Dagitali/cookiecutter-repo-governance
 ```
 
 For local development:
@@ -106,10 +106,10 @@ pytest
 
 ## License
 
-cookiecutter-community-health-docs is distributed under the MIT license.
+cookiecutter-repo-governance is distributed under the MIT license.
 
 ## Acknowledgments
 
-cookiecutter-community-health-docs is inspired by common design and work patterns in open source
-projects, aiming to increase productivity and reduce boilerplate code. Feedback and contributions
-are always appreciated!
+cookiecutter-repo-governance is inspired by common design and work patterns in open source projects,
+aiming to increase productivity and reduce boilerplate code. Feedback and contributions are always
+appreciated!
