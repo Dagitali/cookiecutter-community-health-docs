@@ -1,0 +1,42 @@
+# .coveragerc
+# cookiecutter-community-health-docs
+#
+# Copyright © 2026 Dagitali LLC. All rights reserved.
+#
+# Coverage.py configuration for pytest-cov coverage measurement.
+#
+# Responsibilities
+# - Limit measured source coverage to production Python files maintained by
+#   this template repository.
+# - Exclude tests, generated template content, and build/cache artifacts from
+#   coverage measurement.
+# - Keep branch coverage and missing-line reporting enabled for local and CI
+#   test runs.
+#
+# Maintainer Notes
+# - This file is consumed by Coverage.py directly and by pytest-cov when pytest
+#   runs with coverage options.
+# - Keep `source` aligned with the repository's maintained Python source roots.
+# - This repository is a Cookiecutter template, not an importable package; do
+#   not use a package-name source setting here.
+#
+# References
+# - Coverage.py configuration reference: https://coverage.readthedocs.io/en/latest/config.html
+# - pytest-cov configuration reference: https://pytest-cov.readthedocs.io/en/latest/config.html
+
+[run]
+source =
+    hooks
+branch = true
+omit =
+    build/*
+    dist/*
+    tests/*
+    */tests/*
+    */__pycache__/*
+    .venv/*
+    {{cookiecutter.project_slug}}/*
+
+[report]
+skip_covered = true
+show_missing = true
