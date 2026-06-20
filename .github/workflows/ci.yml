@@ -1,0 +1,69 @@
+# ci.yml
+# cookiecutter-repo-governance
+#
+# Copyright © 2026 Dagitali LLC. All rights reserved.
+#
+# GitHub Actions workflow for continuous integration (CI).
+#
+# Responsibilities
+# - Validate the Cookiecutter template before changes land on protected
+#   integration branches.
+# - Run render tests across supported Git hosting services and branch models.
+# - Run unit tests for project-generation hook helpers.
+# - Run Python lint checks for hooks and tests.
+#
+# Maintainer Notes
+# - Keep this workflow focused on maintaining the template repository, not on
+#   validating projects generated from the template after user customization.
+# - Keep dependency installation aligned with the `dev` optional dependency
+#   group in `pyproject.toml`.
+# - Keep CI checks close to the local maintainer workflow: `ruff check hooks
+#   tests` and `pytest`.
+# - Add generated-file assertions to the integration test suite before adding
+#   broad shell checks here.
+# - If branch protection requires this workflow, keep job and step names stable
+#   unless the branch-protection rule is updated at the same time.
+#
+# References
+# - Cookiecutter documentation: https://cookiecutter.readthedocs.io/
+# - GitHub Actions Python guide: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+# - GitHub Actions workflow syntax reference: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+# - Pytest documentation: https://docs.pytest.org/
+# - Ruff documentation: https://docs.astral.sh/ruff/
+
+---
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Template validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install development dependencies
+        run: python -m pip install -e ".[dev]"
+
+      - name: Run lint checks
+        run: ruff check hooks tests
+
+      - name: Run tests
+        run: pytest
