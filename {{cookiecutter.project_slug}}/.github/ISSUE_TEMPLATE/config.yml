@@ -16,9 +16,11 @@
 
 blank_issues_enabled: false
 contact_links:
+{% if cookiecutter.include_discussions_link == "yes" -%}
   - name: Questions and usage help
     url: {{ cookiecutter.repo_url }}/discussions
     about: Use GitHub Discussions for usage help, docs feedback, and design questions.
+{% endif -%}
   - name: Support
     url: mailto:{{ cookiecutter.support_email }}
     about: Use this contact path for support questions that are not reproducible bugs.
