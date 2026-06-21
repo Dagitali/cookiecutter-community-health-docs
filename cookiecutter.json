@@ -3,7 +3,26 @@
   "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '-') }}",
   "project_description": "A short description of the project.",
   "owner": "My Organization",
-  "repository_url": "https://github.com/my-organization/my-project",
+  "repo_namespace": "{{ cookiecutter.owner.lower().replace(' ', '-') }}",
+  "git_service": [
+    "GitHub",
+    "GitLab",
+    "Bitbucket",
+    "Azure DevOps"
+  ],
+  "__repo_base_urls": {
+    "GitHub": "https://github.com",
+    "GitLab": "https://gitlab.com",
+    "Bitbucket": "https://bitbucket.org",
+    "Azure DevOps": "https://dev.azure.com"
+  },
+  "__repo_paths": {
+    "GitHub": "{{ cookiecutter.repo_namespace }}/{{ cookiecutter.project_slug }}",
+    "GitLab": "{{ cookiecutter.repo_namespace }}/{{ cookiecutter.project_slug }}",
+    "Bitbucket": "{{ cookiecutter.repo_namespace }}/{{ cookiecutter.project_slug }}",
+    "Azure DevOps": "{{ cookiecutter.repo_namespace }}/{{ cookiecutter.project_slug }}/_git/{{ cookiecutter.project_slug }}"
+  },
+  "repo_url": "{{ cookiecutter.__repo_base_urls[cookiecutter.git_service] }}/{{ cookiecutter.__repo_paths[cookiecutter.git_service] }}",
   "default_branch": "main",
   "development_branch": "develop",
   "branch_model": [
@@ -20,20 +39,14 @@
     "MIT",
     "Proprietary"
   ],
-  "year": "{% now 'local', '%Y' %}",
-  "git_hosting_service": [
-    "Azure DevOps",
-    "Bitbucket",
-    "GitHub",
-    "GitLab"
-  ],
-  "__change_request_name": "{% if cookiecutter.git_hosting_service == 'GitLab' %}merge request{% else %}pull request{% endif %}",
-  "include_issue_templates": "{% if cookiecutter.git_hosting_service == 'GitHub' %}yes{% else %}no{% endif %}",
-  "include_pull_request_template": "{% if cookiecutter.git_hosting_service == 'GitHub' %}yes{% else %}no{% endif %}",
+  "__year": "{% now 'local', '%Y' %}",
+  "__change_request_name": "{% if cookiecutter.git_service == 'GitLab' %}merge request{% else %}pull request{% endif %}",
+  "include_issue_templates": "{% if cookiecutter.git_service == 'GitHub' %}yes{% else %}no{% endif %}",
+  "include_pull_request_template": "{% if cookiecutter.git_service == 'GitHub' %}yes{% else %}no{% endif %}",
   "include_release_docs": "yes",
   "include_branch_protection_docs": "yes",
   "include_maintainer_runbooks": "yes",
   "include_references": "yes",
   "include_agents_md": "yes",
-  "include_funding": "{% if cookiecutter.git_hosting_service == 'GitHub' and cookiecutter.sponsor_url %}yes{% else %}no{% endif %}"
+  "include_funding": "{% if cookiecutter.git_service == 'GitHub' and cookiecutter.sponsor_url %}yes{% else %}no{% endif %}"
 }

@@ -33,9 +33,10 @@ Host-specific templates are optionally generated:
 - Bitbucket
   - `.bitbucket/PULL_REQUEST_TEMPLATE.md`
 - GitHub
-  - `.github/ISSUE_TEMPLATE/bug_report.md`
-  - `.github/ISSUE_TEMPLATE/feature_request.md`
-    - `.github/PULL_REQUEST_TEMPLATE.md`
+  - `.github/ISSUE_TEMPLATE/bug_report.yml`
+  - `.github/ISSUE_TEMPLATE/config.yml`
+  - `.github/ISSUE_TEMPLATE/feature_request.yml`
+  - `.github/PULL_REQUEST_TEMPLATE.md`
   - `.github/RELEASE-NOTES-TEMPLATE.md`
   - `.github/MAINTAINER-RUNBOOKS.md`
   - `.github/BRANCH-PROTECTION.md`
@@ -50,7 +51,9 @@ Host-specific templates are optionally generated:
 - `project_slug`: generated output directory
 - `project_description`: short project summary
 - `owner`: organization or maintainer name
-- `repository_url`: canonical repository URL
+- `repo_namespace`: URL-safe repository owner, group, workspace, or organization namespace
+- `repo_url`: canonical repository URL, derived from `git_service`,
+  `repo_namespace`, and `project_slug` by default
 - `default_branch`: default integration branch
 - `development_branch`: development integration branch
 - `branch_model`: `GitFlow` or `GitHub Flow`
@@ -59,7 +62,7 @@ Host-specific templates are optionally generated:
 - `conduct_email`: code-of-conduct contact
 - `sponsor_url`: optional sponsor URL
 - `license_name`: license family used by generated docs
-- `git_hosting_service`: `GitHub`, `GitLab`, `Bitbucket`, or `Azure DevOps`
+- `git_service`: `GitHub`, `GitLab`, `Bitbucket`, or `Azure DevOps`
 - `include_issue_templates`: defaults to `yes` for GitHub, otherwise `no`
 - `include_pull_request_template`: defaults to `yes` for GitHub, otherwise `no`
 - `include_release_docs`: defaults to `yes`
@@ -72,7 +75,7 @@ Host-specific templates are optionally generated:
 When a non-GitHub hosting service is selected, GitHub-specific templates are removed and the
 matching host-specific templates are retained.
 
-The generated docs derive the host-specific change-review term from `git_hosting_service`: GitLab
+The generated docs derive the host-specific change-review term from `git_service`: GitLab
 renders `merge request`; GitHub, Bitbucket, and Azure DevOps render `pull request`.
 
 ## Usage

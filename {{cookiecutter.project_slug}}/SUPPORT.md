@@ -32,7 +32,7 @@ response priority as security or correctness issues.
 ## Where to Get Help
 
 - Public support: {{ cookiecutter.support_email }}
-- Repository: {{ cookiecutter.repository_url }}
+- Repository: {{ cookiecutter.repo_url }}
 - Security reports: {{ cookiecutter.security_email }}
 
 ## Response Targets

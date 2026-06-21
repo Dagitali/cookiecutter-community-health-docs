@@ -8,7 +8,7 @@
   - [Python](#python)
 - [Platforms](#platforms)
   - [`git`](#git)
-  - [{{ cookiecutter.git_hosting_service }}](#{{ cookiecutter.git_hosting_service.lower().replace(' ', '-') }})
+  - [{{ cookiecutter.git_service }}](#{{ cookiecutter.git_service.lower().replace(' ', '-') }})
 - [Software Engineering](#software-engineering)
   - [Release Readiness](#release-readiness)
   - [Spec-Driven Development](#spec-driven-development)
@@ -25,7 +25,7 @@ Follow the repository's existing style before introducing new patterns.
 
 - Place a table of contents directly under the H1 heading before the first H2 heading.
 - Use ATX headings.
-- Prefer concise, policy-oriented prose for community health documents.
+- Prefer concise, policy-oriented prose for repository governance documents.
 - Keep project policy files plain enough to read in source form.
 
 ## Programming Languages
@@ -48,10 +48,10 @@ Follow the repository's existing style before introducing new patterns.
 - Use annotated tags for public releases.
 - Avoid force pushes to protected integration branches.
 
-### {{ cookiecutter.git_hosting_service }}
+### {{ cookiecutter.git_service }}
 
 - Keep {{ cookiecutter.__change_request_name }} templates close to
-  {{ cookiecutter.git_hosting_service }}'s native convention.
+  {{ cookiecutter.git_service }}'s native convention.
 - Treat required checks and branch protections as the authoritative merge gate.
 - Keep private operational material outside the public repository.
 

@@ -1,7 +1,7 @@
 # Contributing Guidelines
 
 Version-controllable contributions toward improving [this project][README.md] (its source code,
-documentation, etc.) are welcome via {{ cookiecutter.git_hosting_service }}'s
+documentation, etc.) are welcome via {{ cookiecutter.git_service }}'s
 {{ cookiecutter.__change_request_name }} process. By submitting a
 {{ cookiecutter.__change_request_name }}, you acknowledge and agree to licensing your contribution to
 [{{ cookiecutter.owner }}][owner].
@@ -14,10 +14,12 @@ email, or any other method with the owners of this repository before making a ch
 - [{{ cookiecutter.__change_request_name | title }} Process](#{{ cookiecutter.__change_request_name.replace(' ', '-') }}-process)
 - [Protected-Branch Workflow](#protected-branch-workflow)
   - [Preferred Flow](#preferred-flow)
+{% if cookiecutter.branch_model == "GitFlow" -%}
   - [Recommended Branch Mapping](#recommended-branch-mapping)
-- [Protected-Branch Workflow](#protected-branch-workflow-1)
-  - [Preferred Flow](#preferred-flow-1)
+{% endif -%}
+{% if cookiecutter.git_service == "GitHub" and cookiecutter.include_maintainer_runbooks == "yes" -%}
 - [Maintainer Runbooks](#maintainer-runbooks)
+{% endif -%}
 - [Code of Conduct](#code-of-conduct)
 - [Local Quality Gates](#local-quality-gates)
 
@@ -56,13 +58,23 @@ reproducible bug reports are often as valuable as small code changes.
 1. Do not commit or push directly to the protected `{{ cookiecutter.default_branch }}` branch. Work
    from a topic branch and open a {{ cookiecutter.__change_request_name }} instead.
 {% endif -%}
-2. Update the [README] with details of changes to the action interface. This includes new inputs,
-   outputs, runner environment behavior, examples, or version-support expectations.
+2. Update the [README] when user-facing behavior, support expectations, repository workflows, or
+   examples change.
+{% if cookiecutter.git_service == "GitHub" and cookiecutter.include_maintainer_runbooks == "yes" -%}
 3. For release-affecting changes (CI, release automation, usage snippets, or stable public surface
    decisions), consult [.github/MAINTAINER-RUNBOOKS.md](.github/MAINTAINER-RUNBOOKS.md).
+{% else -%}
+3. Document release-affecting changes, CI changes, usage snippets, and stable public-surface
+   decisions in the appropriate project-maintainer notes.
+{% endif -%}
+{% if cookiecutter.git_service == "GitHub" and cookiecutter.include_branch_protection_docs == "yes" -%}
 4. For the protected-branch protection settings, required CI checks, and the exact GitHub
    configuration needed to disable direct pushes, consult
    [.github/BRANCH-PROTECTION.md](.github/BRANCH-PROTECTION.md).
+{% else -%}
+4. Keep protected-branch settings and required checks aligned with the repository's documented
+   contribution and review process.
+{% endif -%}
 5. You may merge once the protected-branch protection requirements have been satisfied. The
 {% if cookiecutter.branch_model == "GitFlow" -%}
    recommended baseline is one approval for `{{ cookiecutter.development_branch }}` and two
@@ -72,8 +84,11 @@ reproducible bug reports are often as valuable as small code changes.
    recommended baseline is one approval for `{{ cookiecutter.default_branch }}`. If you do not have
    permission to merge, request a maintainer review and handoff.
 {% endif -%}
+{% if cookiecutter.include_release_docs == "yes" -%}
 6. For release expectations and versioning rules, consult [RELEASE-POLICY.md](RELEASE-POLICY.md).
-7. For the workflow split and trigger model, consult [CI-CD-WORKFLOWS.md](CI-CD-WORKFLOWS.md).
+{% else -%}
+6. Follow the repository's documented release expectations and versioning rules.
+{% endif %}
 
 {% if cookiecutter.branch_model == "GitFlow" -%}
 ## Protected-Branch Workflow
@@ -82,10 +97,10 @@ reproducible bug reports are often as valuable as small code changes.
 
 - Treat `feature/*`, `release/*`, and `hotfix/*` as working branches.
 - Treat `{{ cookiecutter.development_branch }}` and `{{ cookiecutter.default_branch }}` as
-  {{ cookiecutter.git_hosting_service }}-managed integration branches.
+  {{ cookiecutter.git_service }}-managed integration branches.
 - Do not rely on `git flow feature finish` or `git flow release finish` as the authoritative way to
   update protected branches. Those commands create local merges, but protected branches and required
-  checks are enforced in {{ cookiecutter.git_hosting_service }}.
+  checks are enforced in {{ cookiecutter.git_service }}.
 
 ### Preferred Flow
 
@@ -94,8 +109,8 @@ reproducible bug reports are often as valuable as small code changes.
 3. Open a {{ cookiecutter.__change_request_name }} into the protected target branch. Feature
    branches should target `{{ cookiecutter.development_branch }}`; only `release/*` and `hotfix/*`
    should target `{{ cookiecutter.default_branch }}`.
-4. Let `.github/workflows/pr.yml` provide the required PR checks.
-5. Merge the {{ cookiecutter.__change_request_name }} in {{ cookiecutter.git_hosting_service }} after
+4. Let the required checks run against the proposed branch change.
+5. Merge the {{ cookiecutter.__change_request_name }} in {{ cookiecutter.git_service }} after
    the branch protection requirements pass.
 
 ### Recommended Branch Mapping
@@ -131,7 +146,7 @@ intentionally narrow and documented.
 2. Push the topic branch.
 3. Open a {{ cookiecutter.__change_request_name }} into `{{ cookiecutter.default_branch }}`.
 4. Let required checks run against the proposed branch change.
-5. Merge the {{ cookiecutter.__change_request_name }} in {{ cookiecutter.git_hosting_service }} after
+5. Merge the {{ cookiecutter.__change_request_name }} in {{ cookiecutter.git_service }} after
    the branch protection requirements pass.
 6. Delete the topic branch after merge when it is no longer needed.
 
@@ -140,6 +155,7 @@ once protected branches are enabled. The review workflow keeps required checks a
 visible even when a single maintainer owns the final merge decision.
 {% endif %}
 
+{% if cookiecutter.git_service == "GitHub" and cookiecutter.include_maintainer_runbooks == "yes" -%}
 ## Maintainer Runbooks
 
 The repository keeps maintainer runbooks in
@@ -158,27 +174,22 @@ action documentation.
 Private operator procedures, credentials, incident-response steps, and recovery playbooks should
 live outside the repository.
 
+{% endif -%}
 ## Code of Conduct
 
 All contributors are expected to read and follow [CODE_OF_CONDUCT.md].
 
 ## Local Quality Gates
 
-python-project-lifecycle maintains one supported contributor local quality workflow. Contributors
-should use:
-
-```bash
-pre-commit run
-```
-
-For local Git hooks, python-project-lifecycle uses a staged workflow:
+Run the repository's documented local checks before opening a {{ cookiecutter.__change_request_name }}.
+If the project uses `pre-commit`, install and run the hooks with:
 
 ```bash
 pre-commit install --install-hooks
+pre-commit run
 ```
 
-- `pre-commit` runs the fast hygiene and auto-fix hooks before a commit is created.
-- `commit-msg` validates the commit message format.
+If the project uses another task runner, use its documented check command instead.
 
 [Buy Me a Coffee]: https://buymeacoffee.com/djrlj694
 [CODE_OF_CONDUCT.md]: CODE_OF_CONDUCT.md

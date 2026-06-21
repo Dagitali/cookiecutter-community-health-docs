@@ -17,8 +17,8 @@ support channels, release expectations, and expected behavior.
 ## Repository
 
 - Owner: {{ cookiecutter.owner }}
-- Hosting service: {{ cookiecutter.git_hosting_service }}
-- Repository: {{ cookiecutter.repository_url }}
+- Hosting service: {{ cookiecutter.git_service }}
+- Repository: {{ cookiecutter.repo_url }}
 - Default branch: `{{ cookiecutter.default_branch }}`
 {% if cookiecutter.branch_model == "GitFlow" -%}
 - Development branch: `{{ cookiecutter.development_branch }}`

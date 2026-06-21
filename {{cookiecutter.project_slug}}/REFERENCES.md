@@ -8,7 +8,7 @@
   - [`git`](#git)
   - [GitFlow](#gitflow)
   - [GitHub Flow](#github-flow)
-  - [{{ cookiecutter.git_hosting_service }}](#{{ cookiecutter.git_hosting_service.lower().replace(' ', '-') }})
+  - [{{ cookiecutter.git_service }}](#{{ cookiecutter.git_service.lower().replace(' ', '-') }})
 - [Programming Languages](#programming-languages)
   - [Python](#python)
 - [Tools](#tools)
@@ -72,17 +72,17 @@
 1. <https://docs.github.com/en/get-started/using-github/github-flow>: GitHub Flow
 2. <https://medium.com/@roalcantara/a-guide-to-improve-the-git-hub-flow-and-commits-messages-b495461e1115>: GitHub Flow and commit message guidance
 
-### {{ cookiecutter.git_hosting_service }}
+### {{ cookiecutter.git_service }}
 
-{% if cookiecutter.git_hosting_service == "Azure DevOps" -%}
+{% if cookiecutter.git_service == "Azure DevOps" -%}
 1. <https://learn.microsoft.com/en-us/azure/devops/repos/>: Azure Repos documentation
 2. <https://learn.microsoft.com/en-us/azure/devops/repos/git/branch-policies>: Branch policies and settings
 3. <https://learn.microsoft.com/en-us/azure/devops/repos/git/pull-requests>: Pull requests in Azure Repos
-{% elif cookiecutter.git_hosting_service == "Bitbucket" -%}
+{% elif cookiecutter.git_service == "Bitbucket" -%}
 1. <https://support.atlassian.com/bitbucket-cloud/>: Bitbucket Cloud documentation
 2. <https://support.atlassian.com/bitbucket-cloud/docs/create-a-pull-request/>: Pull requests in Bitbucket Cloud
 3. <https://support.atlassian.com/bitbucket-cloud/docs/use-branch-permissions/>: Branch restrictions
-{% elif cookiecutter.git_hosting_service == "GitLab" -%}
+{% elif cookiecutter.git_service == "GitLab" -%}
 1. <https://docs.gitlab.com/>: GitLab documentation
 2. <https://docs.gitlab.com/user/project/merge_requests/>: Merge requests
 3. <https://docs.gitlab.com/user/project/repository/branches/protected/>: Protected branches
