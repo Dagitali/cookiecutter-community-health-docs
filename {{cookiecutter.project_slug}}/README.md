@@ -44,5 +44,5 @@ Do not open public issues for vulnerability reports. See [SECURITY.md].
 {{ cookiecutter.project_name }} is distributed under the {{ cookiecutter.license_name }} license.
 
 [CONTRIBUTING.md]: CONTRIBUTING.md
-[SECURITY.md]: SECURITY.md]
-[SUPPORT.md] SUPPORT.md
+[SECURITY.md]: SECURITY.md
+[SUPPORT.md]: SUPPORT.md
