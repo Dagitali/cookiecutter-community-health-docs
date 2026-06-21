@@ -60,7 +60,7 @@ def render_project_fixture(
             'project_name': 'Example Project',
             'project_slug': 'example-project',
             'owner': 'Example Org',
-            'repository_url': 'https://github.com/example/example-project',
+            'repo_namespace': 'example',
             'support_email': 'support@example.com',
             'security_email': 'security@example.com',
             'conduct_email': 'conduct@example.com',
