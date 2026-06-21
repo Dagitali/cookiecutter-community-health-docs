@@ -1,0 +1,27 @@
+# config.yml
+# {{ cookiecutter.project_name }}
+#
+# Copyright © {{ cookiecutter.__year }} {{ cookiecutter.owner }}. All rights reserved.
+#
+# GitHub issue template configuration.
+#
+# Responsibilities
+# - Disable blank issues and direct users toward the supported support paths.
+#
+# Maintainer Notes
+# - Keep these links aligned with the repository's current Discussions and
+#   security-reporting surfaces.
+
+---
+
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and usage help
+    url: {{ cookiecutter.repo_url }}/discussions
+    about: Use GitHub Discussions for usage help, docs feedback, and design questions.
+  - name: Support
+    url: mailto:{{ cookiecutter.support_email }}
+    about: Use this contact path for support questions that are not reproducible bugs.
+  - name: Security disclosures
+    url: mailto:{{ cookiecutter.security_email }}
+    about: Report security issues privately under the repository security policy.

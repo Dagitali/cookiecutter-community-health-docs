@@ -49,8 +49,8 @@ def render_project_fixture(
         config_file.write_text(
             '\n'.join(
                 [
-                    f"cookiecutters_dir: {tmp_path / 'cookiecutters'}",
-                    f"replay_dir: {tmp_path / 'replay'}",
+                    f'cookiecutters_dir: {tmp_path / "cookiecutters"}',
+                    f'replay_dir: {tmp_path / "replay"}',
                 ],
             ),
             encoding='utf-8',
@@ -60,7 +60,7 @@ def render_project_fixture(
             'project_name': 'Example Project',
             'project_slug': 'example-project',
             'owner': 'Example Org',
-            'repository_url': 'https://github.com/example/example-project',
+            'repo_namespace': 'example',
             'support_email': 'support@example.com',
             'security_email': 'security@example.com',
             'conduct_email': 'conduct@example.com',

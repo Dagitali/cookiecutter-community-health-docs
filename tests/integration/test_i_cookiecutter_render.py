@@ -1,4 +1,4 @@
-"""Integration tests for rendering the community health Cookiecutter template."""
+"""Integration tests for rendering the repository governance Cookiecutter template."""
 
 from __future__ import annotations
 
@@ -20,33 +20,50 @@ class TestCookiecutterContext:
     """Integration test suite for Cookiecutter context behavior."""
 
     @pytest.mark.parametrize(
+        'hidden_key',
+        [
+            '__change_request_name',
+            '__repo_base_urls',
+            '__repo_paths',
+            '__year',
+        ],
+    )
+    def test_derived_variables_are_hidden_prompts(
+        self,
+        cookiecutter_config: dict[str, Any],
+        hidden_key: str,
+    ) -> None:
+        """Test that derived variables are hidden Cookiecutter prompts."""
+        assert hidden_key in cookiecutter_config
+
+    @pytest.mark.parametrize(
         'public_key',
         [
             'change_request_name',
             'change_request_name_plural',
             '__change_request_name_plural',
+            'repository_base_urls',
+            'repository_paths',
+            'year',
         ],
     )
-    def test_change_request_variables_are_not_public_prompts(
+    def test_derived_variables_are_not_public_prompts(
         self,
         cookiecutter_config: dict[str, Any],
         public_key: str,
     ) -> None:
         """
-        Test that change request variables are not public prompts in the
-        Cookiecutter configuration.
+        Test that derived variables are not public prompts in the Cookiecutter
+        configuration.
         """
         assert public_key not in cookiecutter_config
 
-    def test_change_request_variable_is_hidden_prompt(
+    def test_github_is_default_hosting_service(
         self,
         cookiecutter_config: dict[str, Any],
     ) -> None:
-        """
-        Test that the change request variable is a hidden prompt in the
-        Cookiecutter configuration.
-        """
-        assert '__change_request_name' in cookiecutter_config
+        """Test that GitHub is the default Git hosting service prompt value."""
+        assert cookiecutter_config['git_service'][0] == 'GitHub'
 
 
 class TestGitHostingServiceRendering:
@@ -54,7 +71,7 @@ class TestGitHostingServiceRendering:
 
     @pytest.mark.parametrize(
         (
-            'git_hosting_service',
+            'git_service',
             'extra_context',
             'expected_paths',
             'missing_paths',
@@ -68,7 +85,9 @@ class TestGitHostingServiceRendering:
                     'sponsor_url': 'https://example.com/sponsor',
                 },
                 [
-                    '.github/ISSUE_TEMPLATE/bug_report.md',
+                    '.github/ISSUE_TEMPLATE/bug_report.yml',
+                    '.github/ISSUE_TEMPLATE/config.yml',
+                    '.github/ISSUE_TEMPLATE/feature_request.yml',
                     '.github/PULL_REQUEST_TEMPLATE.md',
                     '.github/FUNDING.yml',
                     'RELEASE-POLICY.md',
@@ -122,14 +141,14 @@ class TestGitHostingServiceRendering:
     def test_host_specific_templates_are_rendered(
         self,
         render_project: Callable[..., Path],
-        git_hosting_service: str,
+        git_service: str,
         extra_context: dict[str, str],
         expected_paths: list[str],
         missing_paths: list[str],
         expected_text: str,
     ) -> None:
         project = render_project(
-            git_hosting_service=git_hosting_service,
+            git_service=git_service,
             **extra_context,
         )
 
@@ -147,13 +166,48 @@ class TestGitHostingServiceRendering:
         self,
         render_project: Callable[..., Path],
     ) -> None:
-        project = render_project(git_hosting_service='GitHub')
+        project = render_project(git_service='GitHub')
 
         assert f"Copyright {datetime.now().year}" in (
             project / 'LICENSE'
         ).read_text(
             encoding='utf-8',
         )
+
+    @pytest.mark.parametrize(
+        ('git_service', 'expected_url'),
+        [
+            (
+                'GitHub',
+                'https://github.com/example/example-project',
+            ),
+            (
+                'GitLab',
+                'https://gitlab.com/example/example-project',
+            ),
+            (
+                'Bitbucket',
+                'https://bitbucket.org/example/example-project',
+            ),
+            (
+                'Azure DevOps',
+                'https://dev.azure.com/example/example-project/_git/example-project',
+            ),
+        ],
+    )
+    def test_repo_url_is_derived_from_hosting_context(
+        self,
+        render_project: Callable[..., Path],
+        git_service: str,
+        expected_url: str,
+    ) -> None:
+        """Test that repository URLs derive from selected hosting settings."""
+        project = render_project(git_service=git_service)
+        readme = (project / 'README.md').read_text(encoding='utf-8')
+        support = (project / 'SUPPORT.md').read_text(encoding='utf-8')
+
+        assert f'- Repository: {expected_url}' in readme
+        assert f'- Repository: {expected_url}' in support
 
 
 class TestBranchModelRendering:
@@ -236,7 +290,7 @@ class TestOptionalDocuments:
         missing_path: str,
     ) -> None:
         project = render_project(
-            git_hosting_service='GitHub',
+            git_service='GitHub',
             include_release_docs='no',
             include_branch_protection_docs='no',
             include_maintainer_runbooks='no',
@@ -245,3 +299,33 @@ class TestOptionalDocuments:
         )
 
         assert not (project / missing_path).exists()
+
+
+class TestGeneratedDocumentLinks:
+    """Integration test suite for generated document link consistency."""
+
+    @pytest.mark.parametrize(
+        'git_service',
+        [
+            'GitHub',
+            'GitLab',
+            'Bitbucket',
+            'Azure DevOps',
+        ],
+    )
+    def test_contributing_avoids_unrendered_operational_links(
+        self,
+        render_project: Callable[..., Path],
+        git_service: str,
+    ) -> None:
+        """Test that CONTRIBUTING avoids known links to unrendered files."""
+        project = render_project(git_service=git_service)
+        contributing = (project / 'CONTRIBUTING.md').read_text(encoding='utf-8')
+
+        assert 'CI-CD-WORKFLOWS.md' not in contributing
+        assert '.github/workflows/pr.yml' not in contributing
+        assert 'python-project-lifecycle' not in contributing
+
+        if git_service != 'GitHub':
+            assert '.github/MAINTAINER-RUNBOOKS.md' not in contributing
+            assert '.github/BRANCH-PROTECTION.md' not in contributing
