@@ -70,6 +70,53 @@ class TestGitHostingServiceRendering:
     """Integration test suite for host-specific rendered output."""
 
     @pytest.mark.parametrize(
+        ('include_discussions_link', 'expected_text', 'missing_text'),
+        [
+            (
+                'yes',
+                'https://github.com/example/example-project/discussions',
+                '',
+            ),
+            (
+                'no',
+                'mailto:support@example.com',
+                '/discussions',
+            ),
+        ],
+    )
+    def test_github_issue_config_discussions_link_is_optional(
+        self,
+        render_project: Callable[..., Path],
+        include_discussions_link: str,
+        expected_text: str,
+        missing_text: str,
+    ) -> None:
+        """Test that GitHub issue config can omit the Discussions link."""
+        project = render_project(
+            git_service='GitHub',
+            include_discussions_link=include_discussions_link,
+        )
+        issue_config = (
+            project / '.github' / 'ISSUE_TEMPLATE' / 'config.yml'
+        ).read_text(encoding='utf-8')
+
+        assert expected_text in issue_config
+        if missing_text:
+            assert missing_text not in issue_config
+
+    def test_github_license_uses_current_year(
+        self,
+        render_project: Callable[..., Path],
+    ) -> None:
+        project = render_project(git_service='GitHub')
+
+        assert f"Copyright {datetime.now().year}" in (
+            project / 'LICENSE'
+        ).read_text(
+            encoding='utf-8',
+        )
+
+    @pytest.mark.parametrize(
         (
             'git_service',
             'extra_context',
@@ -159,18 +206,6 @@ class TestGitHostingServiceRendering:
             assert not (project / missing_path).exists()
 
         assert expected_text in (project / 'CONTRIBUTING.md').read_text(
-            encoding='utf-8',
-        )
-
-    def test_github_license_uses_current_year(
-        self,
-        render_project: Callable[..., Path],
-    ) -> None:
-        project = render_project(git_service='GitHub')
-
-        assert f"Copyright {datetime.now().year}" in (
-            project / 'LICENSE'
-        ).read_text(
             encoding='utf-8',
         )
 
