@@ -364,3 +364,26 @@ class TestGeneratedDocumentLinks:
         if git_service != 'GitHub':
             assert '.github/MAINTAINER-RUNBOOKS.md' not in contributing
             assert '.github/BRANCH-PROTECTION.md' not in contributing
+
+    @pytest.mark.parametrize(
+        ('link_label', 'link_target'),
+        [
+            ('CONTRIBUTING.md', 'CONTRIBUTING.md'),
+            ('SECURITY.md', 'SECURITY.md'),
+            ('SUPPORT.md', 'SUPPORT.md'),
+        ],
+    )
+    def test_readme_reference_links_are_valid(
+        self,
+        render_project: Callable[..., Path],
+        link_label: str,
+        link_target: str,
+    ) -> None:
+        """Test that README reference links render as valid Markdown."""
+        project = render_project(git_service='GitHub')
+        readme = (project / 'README.md').read_text(encoding='utf-8')
+
+        assert f'[{link_label}]: {link_target}' in readme
+        assert f'[{link_label}]:' in readme
+        assert f'[{link_label}] {link_target}' not in readme
+        assert f'[{link_label}]: {link_target}]' not in readme
