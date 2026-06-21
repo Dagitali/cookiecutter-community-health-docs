@@ -22,8 +22,8 @@
 # Maintainer Notes
 # - Keep hook revisions compatible with the Python versions supported by
 #   `pyproject.toml`.
-# - Keep branch and commit-message hooks aligned with the GitFlow rules
-#   documented in `.github/BRANCH-PROTECTION.md`.
+# - Keep branch and commit-message hooks aligned with the repository's
+#   documented GitFlow rules.
 # - Prefer targeted hook exclusions over broad disables when generated or
 #   nonstandard files need special handling.
 #
@@ -153,7 +153,7 @@ repos:
         # Ruff will:
         # - enforce E/F/W/B/I/UP as configured in .ruff.toml
         # - sort imports (isort-like)
-        # - apply pyupgrade-like rules for py313
+        # - apply pyupgrade-like rules for Python 3.13+
         args:
           - --fix
           - --exit-non-zero-on-fix
