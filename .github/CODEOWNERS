@@ -1,0 +1,40 @@
+# CODEOWNERS
+# cookiecutter-repo-governance
+#
+# Copyright © 2026 Dagitali LLC. All rights reserved.
+#
+# GitHub CODEOWNERS configuration for repository review ownership.
+#
+# Responsibilities
+# - Assign review ownership for repository automation, Cookiecutter settings,
+#   hooks, tests, and generated governance template files.
+# - Keep ownership routing aligned with protected-branch review expectations.
+#
+# Maintainer Notes
+# - GitHub applies the last matching pattern when multiple CODEOWNERS patterns
+#   match a changed file.
+# - Keep governance and generation-critical ownership broad enough to preserve
+#   review coverage for CI, template inputs, hooks, and generated documents.
+#
+# References
+# - GitHub CODEOWNERS documentation: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Repository automation and governance
+/.github/                         @djrlj694
+
+# Template configuration and generation logic
+/cookiecutter.json                @djrlj694
+/hooks/                           @djrlj694
+/tests/                           @djrlj694
+
+# Local development and Python tooling
+/.coveragerc                      @djrlj694
+/.flake8                          @djrlj694
+/.pre-commit-config.yaml          @djrlj694
+/.ruff.toml                       @djrlj694
+/Makefile                         @djrlj694
+/pyproject.toml                   @djrlj694
+/pytest.ini                       @djrlj694
+
+# Generated governance templates
+/{{cookiecutter.project_slug}}/   @djrlj694
