@@ -1,0 +1,110 @@
+# pr.yml
+# cookiecutter-repo-governance
+#
+# Copyright © 2026 Dagitali LLC. All rights reserved.
+#
+# GitHub Actions workflow for required pull-request (PR) gates.
+#
+# Responsibilities
+# - Run the required pull-request and merge-queue GitFlow target-branch gate.
+# - Run the lightweight branch-policy baseline on GitFlow branches so working-
+#   branch pushes get fast remote feedback before a PR is opened.
+#
+# Maintainer Notes
+# - Global permissions are intentionally omitted; each job declares the minimum
+#   permissions it needs.
+# - External GitHub Actions are not needed here because this workflow uses only
+#   shell logic and GitHub-provided event context.
+# - Heavier protected-branch validation lives in `ci.yml`; keep this workflow
+#   focused on the faster required baseline used by branch protection.
+# - The dynamic run name is part of the workflow contract: it should identify
+#   the short-lived source branch and the long-running target branch for PR
+#   review clarity.
+#
+# References
+# - GitHub Actions expressions reference: https://docs.github.com/en/actions/learn-github-actions/expressions
+# - GitHub Actions security hardening guide: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions
+# - GitHub Actions workflow syntax reference: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+# - GitHub pull request documentation: https://docs.github.com/en/pull-requests
+# - GitHub merge queue documentation: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-merge-queues
+
+---
+
+name: PR Gates
+
+run-name: >-
+  ${{
+    github.event_name == 'pull_request' &&
+    format('PR Gates: {0} -> {1}', github.head_ref, github.base_ref) ||
+    github.event_name == 'push' &&
+    format('PR Gates: push on {0}', github.ref_name) ||
+    github.event_name == 'merge_group' &&
+    format('PR Gates: merge queue for {0}', github.ref_name) ||
+    'PR Gates'
+  }}
+
+on:
+  push:
+    branches:
+      # Protected and release-oriented GitFlow branches
+      - main
+      - develop
+      - '**/release/**'
+      - '**/hotfix/**'
+
+      # GitFlow working branches
+      - '**/feature/**'
+      - '**/bugfix/**'
+
+      # Extended working branches
+      - '**/chore/**'
+      - '**/ci/**'
+      - '**/docs/**'
+  pull_request:
+    branches: [ main, develop ]
+  merge_group:
+    branches: [ main, develop ]
+
+permissions: {}
+
+env:
+  DEFAULT_PYTHON_VERSION: '3.13'
+
+jobs:
+  pr-target-guard:
+    name: Guard PR target branch
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
+    permissions:
+      contents: read
+    steps:
+      - name: Enforce GitFlow PR target rules
+        shell: bash
+        run: |
+          if [[ '${{ github.event_name }}' == 'merge_group' ]]; then
+            echo 'Merge group event inherits PR target validation from the queued pull requests.'
+            exit 0
+          fi
+
+          head_ref='${{ github.head_ref }}'
+          base_ref='${{ github.base_ref }}'
+
+          echo "head_ref=$head_ref"
+          echo "base_ref=$base_ref"
+
+          if [[ "$base_ref" == 'main' ]]; then
+            if [[ "$head_ref" == hotfix/* || "$head_ref" == release/* ]]; then
+              echo 'PR target is valid for main.'
+              exit 0
+            fi
+
+            echo 'Only release/* and hotfix/* branches may target main.'
+            exit 1
+          fi
+
+          if [[ "$base_ref" == 'develop' && "$head_ref" == feature/* ]]; then
+            echo 'Feature branch PR target is valid for develop.'
+            exit 0
+          fi
+
+          echo 'No GitFlow target-branch restriction matched for this PR target.'
