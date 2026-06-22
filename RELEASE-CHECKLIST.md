@@ -35,6 +35,7 @@ steps for repositories generated from this template.
 - [ ] Render at least one GitHub configuration.
 - [ ] Render at least one non-GitHub configuration.
 - [ ] Confirm provider-specific directories are kept or removed as expected.
+- [ ] Confirm rendered host-specific paths match documented paths exactly, including filename case.
 - [ ] Confirm rendered Markdown does not contain unresolved Cookiecutter or Jinja syntax.
 - [ ] Confirm rendered repository URLs, support contacts, security contacts, and branch names match
       the selected Cookiecutter inputs.
