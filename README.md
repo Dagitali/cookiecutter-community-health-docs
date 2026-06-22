@@ -8,6 +8,7 @@ A Cookiecutter template for rendering project-tailored software repository gover
 - [Development](#development)
 - [Documentation](#documentation)
   - [Community Health](#community-health)
+  - [Maintainer Docs](#maintainer-docs)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
 
@@ -107,6 +108,15 @@ pytest
 - [Contributing Guidelines](CONTRIBUTING.md): How to contribute, report issues, and submit PRs
 - [Security Policy](SECURITY.md): Responsible disclosure and vulnerability reporting
 - [Support](SUPPORT.md): Where to get help
+
+### Maintainer Docs
+
+- [Release Policy And Versioning](RELEASE-POLICY.md): Release expectations, semantic-version-style
+  rules, and deprecation posture
+- [CI/CD Workflow Map](CI-CD-WORKFLOWS.md): Explanation of `pr.yml`, `ci.yml`, and `cd.yml`
+- [Release Checklist And Stable-Line Maintenance](RELEASE-CHECKLIST.md): Release-readiness execution guidance and stable-line follow-up tracking
+- [Maintainer Runbooks](.github/MAINTAINER-RUNBOOKS.md): Maintainer workflow guidance for protected
+  branches and tag-driven releases
 
 ## License
 
