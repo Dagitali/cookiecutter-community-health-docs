@@ -57,6 +57,7 @@ dev = [
   "build>=1.5.0",
   "cookiecutter>=2.6",
   "mypy>=2.1.0",
+  "pre-commit>=4.0",
   "pydoclint>=0.8.4",
   "pydocstyle>=6.3.0",
   "pytest>=9.0.3",
