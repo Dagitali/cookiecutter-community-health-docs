@@ -35,9 +35,17 @@ steps for repositories generated from this template.
 - [ ] Render at least one GitHub configuration.
 - [ ] Render at least one non-GitHub configuration.
 - [ ] Confirm provider-specific directories are kept or removed as expected.
+- [ ] Confirm rendered host-specific paths match documented paths exactly, including filename case.
 - [ ] Confirm rendered Markdown does not contain unresolved Cookiecutter or Jinja syntax.
 - [ ] Confirm rendered repository URLs, support contacts, security contacts, and branch names match
       the selected Cookiecutter inputs.
+
+Generated-output smoke commands:
+
+```bash
+cookiecutter . --no-input
+pytest tests/integration/test_i_cookiecutter_render.py
+```
 
 ## Documentation Checks
 
@@ -81,8 +89,8 @@ Example:
 
 ```bash
 git fetch origin main
-git tag -a v0.3.0 origin/main -m "Release v0.3.0"
-git push origin v0.3.0
+git tag -a v1.2.6 origin/main -m "Release v1.2.6"
+git push origin v1.2.6
 ```
 
 ## Post-Release Checks
