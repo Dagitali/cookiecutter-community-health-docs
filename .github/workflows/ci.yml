@@ -6,32 +6,34 @@
 # GitHub Actions workflow for continuous integration (CI).
 #
 # Responsibilities
-# - Validate the Cookiecutter template before changes land on protected
-#   integration branches.
-# - Run pre-commit repository hygiene checks once per workflow run.
-# - Run render tests across supported Git hosting services and branch models.
-# - Run unit tests for project-generation hook helpers.
-# - Run Python lint checks for hooks and tests.
+# - Run pre-merge validation for pull requests targeting the long-lived GitFlow
+#   branches.
+# - Validate repository hygiene, Python linting, unit tests, and rendered
+#   Cookiecutter template output before those changes land.
 #
 # Maintainer Notes
-# - Keep this workflow focused on maintaining the template repository, not on
-#   validating projects generated from the template after user customization.
+# - Global permissions are intentionally omitted; each job declares the minimum
+#   permissions it needs.
+# - External GitHub Actions are pinned to full commit SHAs to reduce supply-
+#   chain risk.
+# - Keep required pull-request and merge-queue gates in `pr.yml`.
+# - This workflow intentionally complements, rather than replaces, the lighter
+#   branch-target checks that run earlier in the development loop.
 # - Keep dependency installation aligned with the `dev` optional dependency
 #   group in `pyproject.toml`.
-# - Keep CI checks close to the local maintainer workflow: `ruff check hooks
-#   tests` and `pytest`.
-# - Keep the Python version matrix aligned with `pyproject.toml`.
-# - Add generated-file assertions to the integration test suite before adding
-#   broad shell checks here.
-# - Keep external actions pinned to full commit SHAs. `Dagitali/python-bootstrap`
-#   centralizes Python setup, pip normalization, and dependency installation.
-# - If branch protection requires this workflow, keep job and step names stable
-#   unless the branch-protection rule is updated at the same time.
+# - The dynamic run name is part of the workflow contract: it should identify
+#   the short-lived source branch and the long-running target branch for PR
+#   review clarity.
 #
 # References
 # - Cookiecutter documentation: https://cookiecutter.readthedocs.io/
 # - GitHub Actions Python guide: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+# - GitHub Actions expressions reference: https://docs.github.com/en/actions/learn-github-actions/expressions
+# - GitHub Actions security hardening guide: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions
 # - GitHub Actions workflow syntax reference: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+# - GitHub pull request documentation: https://docs.github.com/en/pull-requests
+# - GitHub merge queue documentation: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-merge-queues
+# - Python packaging documentation: https://packaging.python.org/
 # - Pytest documentation: https://docs.pytest.org/
 # - Ruff documentation: https://docs.astral.sh/ruff/
 
@@ -47,12 +49,13 @@ run-name: >-
     format('CI: push on {0}', github.ref_name) ||
     github.event_name == 'merge_group' &&
     format('CI: merge queue for {0}', github.ref_name) ||
-    'CI'
+    'CI: manual dispatch'
   }}
 
 on:
   pull_request:
     branches:
+      # Long-lived GitFlow branches
       - main
       - develop
   push:
@@ -75,13 +78,13 @@ on:
 permissions: {}
 
 env:
-  DEFAULT_PYTHON_VERSION: "3.14"
+  DEFAULT_PYTHON_VERSION: '3.14'
 
 jobs:
   precommit:
     name: Repository hygiene checks
     runs-on: ubuntu-latest
-    permissions:
+    permissions: &permissions_read
       contents: read
 
     steps:
@@ -105,10 +108,9 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - "3.13"
-          - "3.14"
-    permissions:
-      contents: read
+          - '3.13'
+          - '3.14'
+    permissions: *permissions_read
 
     steps:
       - name: Check out repository
