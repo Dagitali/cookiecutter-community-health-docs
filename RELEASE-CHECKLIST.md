@@ -54,6 +54,8 @@ steps for repositories generated from this template.
 - [ ] Run repository hygiene checks.
 - [ ] Run Python lint checks.
 - [ ] Run the test suite.
+- [ ] Run or review `.github/workflows/sbom.yml` as an advisory supply-chain check, and confirm the
+      `sbom` artifact was generated if the workflow was run.
 - [ ] Review untracked files and confirm all release-intended files are committed.
 - [ ] Update release notes using `.github/RELEASE-NOTES-TEMPLATE.md`.
 - [ ] Confirm the release branch has been merged through the protected-branch workflow.
@@ -86,6 +88,8 @@ git push origin v0.3.0
 ## Post-Release Checks
 
 - [ ] Confirm the `.github/workflows/cd.yml` `Publish GitHub release` job completed successfully.
+- [ ] If `.github/workflows/sbom.yml` was run for the release, review the uploaded `sbom` artifact
+      for obvious dependency or tooling surprises.
 - [ ] Confirm the GitHub Release exists and has accurate release notes.
 - [ ] Confirm release notes call out breaking changes, deprecations, and upgrade notes when
       applicable.
