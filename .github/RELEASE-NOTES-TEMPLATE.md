@@ -1,7 +1,7 @@
 # Release Notes Template
 
 Use this template when drafting GitHub Release notes for tagged cookiecutter-repo-governance
-releases.
+releases. GitHub Releases is the canonical release-history surface for the project.
 
 - [Highlights](#highlights)
 - [Breaking Changes](#breaking-changes)
