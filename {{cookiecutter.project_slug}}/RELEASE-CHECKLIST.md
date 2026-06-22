@@ -1,5 +1,8 @@
 # Release Checklist And Stable-Line Maintenance
 
+Use this checklist for releases of the rendered project. Template-maintainer release steps live in
+the Cookiecutter template repository.
+
 - [Pre-Release](#pre-release)
 - [Release](#release)
 - [Post-Release](#post-release)
@@ -11,7 +14,11 @@
 - [ ] Verify that user-facing documentation matches supported behavior.
 - [ ] Confirm tests and required checks pass on the release branch.
 - [ ] Review [SECURITY.md](SECURITY.md) for unresolved release-blocking reports.
-- [ ] Draft release notes using `.github/RELEASE-NOTES-TEMPLATE.md` when available.
+{% if cookiecutter.git_service == 'GitHub' -%}
+- [ ] Draft release notes using `.github/RELEASE-NOTES-TEMPLATE.md`.
+{% else -%}
+- [ ] Draft release notes for the selected release channel.
+{% endif %}
 
 ## Release
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
@@ -13,7 +14,38 @@ import pytest
 
 # pylint: disable=import-outside-toplevel,protected-access,unused-argument
 
-# SECTION: TEST SUITES ====================================================== #
+# SECTION: CONSTANTS ======================================================== #
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+# SECTION: INTERNAL FUNCTIONS =============================================== #
+
+
+def _markdown_files(
+    project: Path,
+) -> list[Path]:
+    """Return generated Markdown files below the rendered project."""
+    return sorted(project.rglob('*.md'))
+
+
+def _local_markdown_links(
+    markdown: str,
+) -> list[str]:
+    """Return local Markdown link targets from a Markdown document."""
+    links = []
+    for target in re.findall(r'(?<!!)\[[^\]]+\]\(([^)]+)\)', markdown):
+        if (
+            target.startswith(('http://', 'https://', 'mailto:', '#'))
+            or target.startswith('<http')
+        ):
+            continue
+        links.append(target.strip('<>'))
+    return links
+
+
+# SECTION: TESTS ============================================================ #
 
 
 class TestCookiecutterContext:
@@ -210,6 +242,47 @@ class TestGitHostingServiceRendering:
         )
 
     @pytest.mark.parametrize(
+        ('git_service', 'expected_text', 'missing_text'),
+        [
+            (
+                'GitHub',
+                'Draft release notes using `.github/RELEASE-NOTES-TEMPLATE.md`.',
+                'Draft release notes for the selected release channel.',
+            ),
+            (
+                'GitLab',
+                'Draft release notes for the selected release channel.',
+                '.github/RELEASE-NOTES-TEMPLATE.md',
+            ),
+            (
+                'Bitbucket',
+                'Draft release notes for the selected release channel.',
+                '.github/RELEASE-NOTES-TEMPLATE.md',
+            ),
+            (
+                'Azure DevOps',
+                'Draft release notes for the selected release channel.',
+                '.github/RELEASE-NOTES-TEMPLATE.md',
+            ),
+        ],
+    )
+    def test_release_checklist_release_notes_match_host(
+        self,
+        render_project: Callable[..., Path],
+        git_service: str,
+        expected_text: str,
+        missing_text: str,
+    ) -> None:
+        """Test that release-note guidance matches the rendered host."""
+        project = render_project(git_service=git_service)
+        release_checklist = (project / 'RELEASE-CHECKLIST.md').read_text(
+            encoding='utf-8',
+        )
+
+        assert expected_text in release_checklist
+        assert missing_text not in release_checklist
+
+    @pytest.mark.parametrize(
         ('git_service', 'expected_url'),
         [
             (
@@ -310,30 +383,87 @@ class TestOptionalDocuments:
     """Integration test suite for optional generated documents."""
 
     @pytest.mark.parametrize(
-        'missing_path',
+        ('extra_context', 'missing_paths', 'expected_paths'),
         [
-            'RELEASE-POLICY.md',
-            'RELEASE-CHECKLIST.md',
-            'REFERENCES.md',
-            'AGENTS.md',
-            '.github/MAINTAINER-RUNBOOKS.md',
+            (
+                {'include_release_docs': 'no'},
+                [
+                    'RELEASE-POLICY.md',
+                    'RELEASE-CHECKLIST.md',
+                    '.github/RELEASE-NOTES-TEMPLATE.md',
+                ],
+                [
+                    '.github/BRANCH-PROTECTION.md',
+                    '.github/MAINTAINER-RUNBOOKS.md',
+                ],
+            ),
+            (
+                {'include_branch_protection_docs': 'no'},
+                ['.github/BRANCH-PROTECTION.md'],
+                [
+                    'RELEASE-POLICY.md',
+                    'RELEASE-CHECKLIST.md',
+                    '.github/MAINTAINER-RUNBOOKS.md',
+                ],
+            ),
+            (
+                {'include_maintainer_runbooks': 'no'},
+                ['.github/MAINTAINER-RUNBOOKS.md'],
+                [
+                    'RELEASE-POLICY.md',
+                    'RELEASE-CHECKLIST.md',
+                    '.github/BRANCH-PROTECTION.md',
+                ],
+            ),
+            (
+                {'include_references': 'no'},
+                ['REFERENCES.md'],
+                [
+                    'RELEASE-POLICY.md',
+                    'RELEASE-CHECKLIST.md',
+                    '.github/BRANCH-PROTECTION.md',
+                ],
+            ),
+            (
+                {'include_agents_md': 'no'},
+                ['AGENTS.md'],
+                [
+                    'RELEASE-POLICY.md',
+                    'RELEASE-CHECKLIST.md',
+                    '.github/BRANCH-PROTECTION.md',
+                ],
+            ),
+            (
+                {
+                    'include_funding': 'no',
+                    'sponsor_url': 'https://example.com/sponsor',
+                },
+                ['.github/FUNDING.yml'],
+                [
+                    'RELEASE-POLICY.md',
+                    'RELEASE-CHECKLIST.md',
+                    '.github/BRANCH-PROTECTION.md',
+                ],
+            ),
         ],
     )
     def test_optional_documents_can_be_removed(
         self,
         render_project: Callable[..., Path],
-        missing_path: str,
+        extra_context: dict[str, str],
+        missing_paths: list[str],
+        expected_paths: list[str],
     ) -> None:
         project = render_project(
             git_service='GitHub',
-            include_release_docs='no',
-            include_branch_protection_docs='no',
-            include_maintainer_runbooks='no',
-            include_references='no',
-            include_agents_md='no',
+            **extra_context,
         )
 
-        assert not (project / missing_path).exists()
+        for missing_path in missing_paths:
+            assert not (project / missing_path).exists()
+
+        for expected_path in expected_paths:
+            assert (project / expected_path).exists()
 
 
 class TestGeneratedDocumentLinks:
@@ -366,6 +496,34 @@ class TestGeneratedDocumentLinks:
             assert '.github/BRANCH-PROTECTION.md' not in contributing
 
     @pytest.mark.parametrize(
+        'git_service',
+        [
+            'GitHub',
+            'GitLab',
+            'Bitbucket',
+            'Azure DevOps',
+        ],
+    )
+    def test_generated_markdown_links_point_to_existing_files(
+        self,
+        render_project: Callable[..., Path],
+        git_service: str,
+    ) -> None:
+        """Test that generated local Markdown links resolve to rendered files."""
+        project = render_project(git_service=git_service)
+
+        for markdown_file in _markdown_files(project):
+            markdown = markdown_file.read_text(encoding='utf-8')
+            for link in _local_markdown_links(markdown):
+                target = link.split('#', maxsplit=1)[0]
+                if not target:
+                    continue
+                assert (markdown_file.parent / target).exists(), (
+                    f'{markdown_file.relative_to(project)} links to missing '
+                    f'target {link}'
+                )
+
+    @pytest.mark.parametrize(
         ('link_label', 'link_target'),
         [
             ('CONTRIBUTING.md', 'CONTRIBUTING.md'),
@@ -387,3 +545,154 @@ class TestGeneratedDocumentLinks:
         assert f'[{link_label}]:' in readme
         assert f'[{link_label}] {link_target}' not in readme
         assert f'[{link_label}]: {link_target}]' not in readme
+
+
+class TestGeneratedOutputQuality:
+    """Integration test suite for rendered output quality gates."""
+
+    @pytest.mark.parametrize(
+        ('git_service', 'expected_paths', 'missing_paths'),
+        [
+            (
+                'GitHub',
+                [
+                    '.github/ISSUE_TEMPLATE/bug_report.yml',
+                    '.github/ISSUE_TEMPLATE/config.yml',
+                    '.github/ISSUE_TEMPLATE/feature_request.yml',
+                    '.github/pull_request_template.md',
+                    '.github/RELEASE-NOTES-TEMPLATE.md',
+                    '.github/MAINTAINER-RUNBOOKS.md',
+                    '.github/BRANCH-PROTECTION.md',
+                ],
+                [
+                    '.gitlab/issue_templates/Bug.md',
+                    '.gitlab/merge_request_templates/Default.md',
+                    '.bitbucket/PULL_REQUEST_TEMPLATE.md',
+                    '.azuredevops/pull_request_template.md',
+                ],
+            ),
+            (
+                'GitLab',
+                [
+                    '.gitlab/issue_templates/Bug.md',
+                    '.gitlab/merge_request_templates/Default.md',
+                ],
+                [
+                    '.github/ISSUE_TEMPLATE/bug_report.yml',
+                    '.github/pull_request_template.md',
+                    '.bitbucket/PULL_REQUEST_TEMPLATE.md',
+                    '.azuredevops/pull_request_template.md',
+                ],
+            ),
+            (
+                'Bitbucket',
+                [
+                    '.bitbucket/PULL_REQUEST_TEMPLATE.md',
+                ],
+                [
+                    '.github/ISSUE_TEMPLATE/bug_report.yml',
+                    '.github/pull_request_template.md',
+                    '.gitlab/issue_templates/Bug.md',
+                    '.azuredevops/pull_request_template.md',
+                ],
+            ),
+            (
+                'Azure DevOps',
+                [
+                    '.azuredevops/pull_request_template.md',
+                ],
+                [
+                    '.github/ISSUE_TEMPLATE/bug_report.yml',
+                    '.github/pull_request_template.md',
+                    '.gitlab/issue_templates/Bug.md',
+                    '.bitbucket/PULL_REQUEST_TEMPLATE.md',
+                ],
+            ),
+        ],
+    )
+    def test_documented_host_specific_paths_match_rendered_output(
+        self,
+        render_project: Callable[..., Path],
+        git_service: str,
+        expected_paths: list[str],
+        missing_paths: list[str],
+    ) -> None:
+        """Test that documented host-specific paths match rendered output."""
+        project = render_project(git_service=git_service)
+
+        for expected_path in expected_paths:
+            assert (project / expected_path).exists()
+
+        for missing_path in missing_paths:
+            assert not (project / missing_path).exists()
+
+    @pytest.mark.parametrize(
+        'git_service',
+        [
+            'GitHub',
+            'GitLab',
+            'Bitbucket',
+            'Azure DevOps',
+        ],
+    )
+    def test_rendered_markdown_has_no_unresolved_template_syntax(
+        self,
+        render_project: Callable[..., Path],
+        git_service: str,
+    ) -> None:
+        """Test that rendered Markdown contains no unresolved Jinja syntax."""
+        project = render_project(git_service=git_service)
+        unresolved_patterns = ('{{', '{%', '{#')
+
+        for markdown_file in _markdown_files(project):
+            markdown = markdown_file.read_text(encoding='utf-8')
+            assert not any(pattern in markdown for pattern in unresolved_patterns), (
+                f'{markdown_file.relative_to(project)} contains unresolved '
+                'Cookiecutter or Jinja syntax'
+            )
+
+
+class TestReleaseNotesConfiguration:
+    """Integration test suite for GitHub release-note configuration."""
+
+    @pytest.mark.parametrize(
+        ('category', 'labels'),
+        [
+            ('Breaking Changes', ['breaking-change', 'breaking']),
+            ('Features', ['feature', 'enhancement']),
+            ('Fixes', ['bug', 'bugfix', 'fix']),
+            ('Documentation', ['documentation', 'docs']),
+            ('Maintenance', ['chore', 'dependencies', 'ci']),
+        ],
+    )
+    def test_release_notes_categories_include_expected_labels(
+        self,
+        category: str,
+        labels: list[str],
+    ) -> None:
+        """Test that release-note categories keep expected labels."""
+        release_config = (PROJECT_ROOT / '.github' / 'release.yml').read_text(
+            encoding='utf-8',
+        )
+
+        assert f'title: {category}' in release_config
+        for label in labels:
+            assert f'- {label}' in release_config
+
+    @pytest.mark.parametrize(
+        'label',
+        [
+            'skip-release-notes',
+            'internal',
+        ],
+    )
+    def test_release_notes_exclude_internal_labels(
+        self,
+        label: str,
+    ) -> None:
+        """Test that release-note generation excludes internal labels."""
+        release_config = (PROJECT_ROOT / '.github' / 'release.yml').read_text(
+            encoding='utf-8',
+        )
+
+        assert f'- {label}' in release_config

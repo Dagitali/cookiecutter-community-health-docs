@@ -12,7 +12,7 @@ import pytest
 
 # pylint: disable=import-outside-toplevel,protected-access,unused-argument
 
-# SECTION: TEST SUITES ====================================================== #
+# SECTION: TESTS ============================================================ #
 
 
 class TestAsBool:

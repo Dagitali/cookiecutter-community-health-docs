@@ -70,6 +70,12 @@ help: ## Show available targets
 lint: dev ## Run Ruff checks for hooks and tests
 	$(PYTHON) -m ruff check hooks tests
 
+.PHONY: release-check
+release-check: ## Run release-readiness checks without creating a virtual environment
+	SKIP=no-commit-to-branch pre-commit run --all-files
+	ruff check hooks tests
+	pytest
+
 .PHONY: render
 render: dev ## Render a sample project into RENDER_OUTPUT_DIR
 	rm -rf "$(RENDER_OUTPUT_DIR)"
