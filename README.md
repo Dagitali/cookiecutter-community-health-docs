@@ -36,7 +36,7 @@ Host-specific templates are optionally generated:
   - `.github/ISSUE_TEMPLATE/bug_report.yml`
   - `.github/ISSUE_TEMPLATE/config.yml`
   - `.github/ISSUE_TEMPLATE/feature_request.yml`
-  - `.github/PULL_REQUEST_TEMPLATE.md`
+  - `.github/pull_request_template.md`
   - `.github/RELEASE-NOTES-TEMPLATE.md`
   - `.github/MAINTAINER-RUNBOOKS.md`
   - `.github/BRANCH-PROTECTION.md`

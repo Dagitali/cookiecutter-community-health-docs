@@ -82,7 +82,7 @@ def main() -> None:
         _remove_path(PROJECT_ROOT / '.github' / 'ISSUE_TEMPLATE')
 
     if git_service == 'GitHub' and not include_pull_request_template:
-        _remove_path(PROJECT_ROOT / '.github' / 'PULL_REQUEST_TEMPLATE.md')
+        _remove_path(PROJECT_ROOT / '.github' / 'pull_request_template.md')
 
     if not include_release_docs:
         _remove_path(PROJECT_ROOT / 'RELEASE-POLICY.md')
