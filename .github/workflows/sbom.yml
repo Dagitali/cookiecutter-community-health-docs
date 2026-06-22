@@ -1,0 +1,88 @@
+# sbom.yml
+# cookiecutter-repo-governance
+#
+# Copyright © 2026 Dagitali LLC. All rights reserved.
+#
+# GitHub Actions workflow for Software Bill of Materials (SBOM) generation.
+#
+# Responsibilities
+# - Generate a CycloneDX SBOM from the template-maintenance Python environment.
+# - Upload the generated SBOM as a workflow artifact for later inspection.
+# - Keep SBOM generation independent from release publishing because this
+#   repository is a Cookiecutter template, not a PyPI-distributed package.
+#
+# Maintainer Notes
+# - Global permissions are intentionally omitted; each job declares the minimum
+#   permissions it needs.
+# - External GitHub Actions are pinned to full commit SHAs to reduce supply-
+#   chain risk.
+# - Keep dependency installation aligned with the `dev` optional dependency
+#   group in `pyproject.toml`.
+# - The dynamic run name is part of the workflow contract: it should identify
+#   the event trigger for clarity.
+#
+# References
+# - CycloneDX Python module documentation: https://cyclonedx.org/tool-center/python/
+# - Software Bill of Materials (SBOM) documentation: https://cyclonedx.org/use-cases/software-bill-of-materials/
+# - GitHub Actions Python guide: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+# - GitHub Actions expressions reference: https://docs.github.com/en/actions/learn-github-actions/expressions
+# - GitHub Actions security hardening guide: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions
+# - GitHub Actions workflow syntax reference: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+# - GitHub Actions artifact upload guide: https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts
+
+---
+
+name: SBOM
+
+run-name: >-
+  ${{
+    github.event_name == 'pull_request' &&
+    format('SBOM: {0} -> {1}', github.head_ref, github.base_ref) ||
+    github.event_name == 'push' &&
+    format('SBOM: push on {0}', github.ref_name) ||
+    'SBOM: manual dispatch'
+  }}
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+permissions: {}
+
+env:
+  DEFAULT_PYTHON_VERSION: '3.14'
+  CYCLONEDX_BOM_VERSION: '7.2.2'
+
+jobs:
+  generate-sbom:
+    name: Generate CycloneDX SBOM
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # Pinned v6.0.3
+
+      - name: Generate SBOM
+        uses: Dagitali/python-project-lifecycle@3830839be6caca98cacca702c5aa38805c4fb516  # Pinned v0.1.2
+        with:
+          phase: sbom
+          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
+          pip-install: "-e .[dev]"
+          sbom-tool-version: ${{ env.CYCLONEDX_BOM_VERSION }}
+          sbom-output-file: sbom.json
+          sbom-output-format: JSON
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # Pinned v7.0.1
+        with:
+          name: sbom
+          path: sbom.json
+          if-no-files-found: error
