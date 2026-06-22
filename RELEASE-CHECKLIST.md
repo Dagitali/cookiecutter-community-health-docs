@@ -19,9 +19,14 @@ metadata.
 It does not cover private operator procedures, credential handling, or project-specific release
 steps for repositories generated from this template.
 
+Releases do not publish to PyPI, do not publish Read the Docs documentation, and do not attach built
+Python distribution artifacts.
+
 ## Pre-Release Checks
 
 - [ ] Confirm the release scope is appropriate for the planned SemVer increment.
+- [ ] Confirm `main` and `develop` are synced before tagging, or document why a release/hotfix
+      sequence intentionally leaves follow-up sync work.
 - [ ] Confirm `README.md`, `CONTRIBUTING.md`, `SUPPORT.md`, and `RELEASE-POLICY.md` describe the
       current repository behavior.
 - [ ] Confirm `.github/BRANCH-PROTECTION.md` reflects current CI job names and protected branches.
@@ -66,6 +71,9 @@ pytest tests/integration/test_i_cookiecutter_render.py
       `sbom` artifact was generated if the workflow was run.
 - [ ] Review untracked files and confirm all release-intended files are committed.
 - [ ] Update release notes using `.github/RELEASE-NOTES-TEMPLATE.md`.
+- [ ] Confirm generated GitHub release notes were reviewed against `.github/RELEASE-NOTES-TEMPLATE.md`.
+- [ ] Confirm breaking changes, deprecated settings, generated file additions/removals, and
+      migration notes are explicit.
 - [ ] Confirm the release branch has been merged through the protected-branch workflow.
 
 Recommended local commands:
@@ -79,6 +87,7 @@ pytest
 ## Tagging
 
 - [ ] Check out the authoritative release commit on `main`.
+- [ ] Confirm the tag points at the authoritative merged `main` commit.
 - [ ] Create an annotated SemVer tag.
 - [ ] Push the tag to GitHub.
 - [ ] Confirm pushing the `v*.*.*` tag triggers `.github/workflows/cd.yml`.
