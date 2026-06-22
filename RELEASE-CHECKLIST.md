@@ -2,8 +2,8 @@
 
 Use this checklist when preparing a tagged cookiecutter-repo-governance release.
 
-The generated project release checklist is maintained separately in
-`{{cookiecutter.project_slug}}/RELEASE-CHECKLIST.md`.
+The generated project release checklist is maintained separately in the Cookiecutter template
+directory.
 
 - [Scope](#scope)
 - [Pre-Release Checks](#pre-release-checks)
@@ -59,7 +59,7 @@ pytest tests/integration/test_i_cookiecutter_render.py
 ## Documentation Checks
 
 - [ ] Confirm root community-health files do not contain Cookiecutter template variables.
-- [ ] Confirm generated template files under `{{cookiecutter.project_slug}}/` contain only
+- [ ] Confirm generated template files under the Cookiecutter template directory contain only
       intentional Cookiecutter variables.
 - [ ] Confirm root documentation links point to existing root files.
 - [ ] Confirm generated documentation links point to files that will exist after rendering.
@@ -127,3 +127,8 @@ git push origin v1.2.6
 - [x] Make generated release-note checklist guidance host-aware.
 - [x] Add a local `release-check` command target.
 - [x] Add regression coverage for GitHub release-note categories.
+- [x] Add automated checks that root Markdown has no unresolved Cookiecutter or Jinja syntax.
+- [x] Add automated checks for root local Markdown links.
+- [x] Add automated checks that README generated-file inventory points to template files.
+- [x] Remove stale root `SUPPORT.md` reference to missing `REFERENCES.md`.
+- [x] Make generated post-release checklist guidance branch-model-aware.

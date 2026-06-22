@@ -1,4 +1,8 @@
-"""Unit tests for Cookiecutter post-generation hook helpers."""
+"""
+:mod:`tests.unit.test_u_post_gen_project` module.
+
+Unit tests for Cookiecutter post-generation hook helpers.
+"""
 
 from __future__ import annotations
 

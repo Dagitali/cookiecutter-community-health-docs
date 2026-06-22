@@ -1,7 +1,6 @@
 # Release Checklist And Stable-Line Maintenance
 
-Use this checklist for releases of the rendered project. Template-maintainer release steps live in
-the Cookiecutter template repository.
+Use this checklist for releases of {{cookiecutter.project_slug}}.
 
 - [Pre-Release](#pre-release)
 - [Release](#release)
@@ -29,8 +28,13 @@ the Cookiecutter template repository.
 
 ## Post-Release
 
+{% if cookiecutter.branch_model == 'GitFlow' -%}
 - [ ] Sync `{{ cookiecutter.default_branch }}` back into `{{ cookiecutter.development_branch }}` when
       using a GitFlow branch model.
+{% else -%}
+- [ ] Confirm release follow-up work is tracked through short-lived branches targeting
+      `{{ cookiecutter.default_branch }}`.
+{% endif %}
 - [ ] Close or update release-tracking issues.
 - [ ] Update follow-up maintenance items.
 

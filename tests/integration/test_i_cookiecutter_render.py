@@ -1,4 +1,9 @@
-"""Integration tests for rendering the repository governance Cookiecutter template."""
+"""
+:mod:`tests.integration.test_i_cookiecutter_render` module.
+
+Integration tests for rendering the repository governance Cookiecutter
+template.
+"""
 
 from __future__ import annotations
 
@@ -377,6 +382,37 @@ class TestBranchModelRendering:
             ('### Recommended Branch Mapping' in contributing)
             is expects_branch_mapping
         )
+
+    @pytest.mark.parametrize(
+        ('branch_model', 'expected_text', 'missing_text'),
+        [
+            (
+                'GitFlow',
+                'back into `develop` when\n      using a GitFlow branch model',
+                'short-lived branches targeting\n      `main`',
+            ),
+            (
+                'GitHub Flow',
+                'short-lived branches targeting\n      `main`',
+                'back into `develop` when\n      using a GitFlow branch model',
+            ),
+        ],
+    )
+    def test_release_checklist_post_release_matches_branch_model(
+        self,
+        render_project: Callable[..., Path],
+        branch_model: str,
+        expected_text: str,
+        missing_text: str,
+    ) -> None:
+        """Test that post-release steps match the selected branch model."""
+        project = render_project(branch_model=branch_model)
+        release_checklist = (project / 'RELEASE-CHECKLIST.md').read_text(
+            encoding='utf-8',
+        )
+
+        assert expected_text in release_checklist
+        assert missing_text not in release_checklist
 
 
 class TestOptionalDocuments:
