@@ -32,7 +32,7 @@ exclude =
     .git,
     __pycache__,
     build,
-    cookiecutter_community_health_docs.egg-info,
+    cookiecutter_repo_governance.egg-info,
     dist,
     temp,
     {{cookiecutter.project_slug}},

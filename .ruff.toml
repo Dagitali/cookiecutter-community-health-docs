@@ -26,7 +26,7 @@
 line-length = 88  # Matches Ruff's default, popularized by Black.
 target-version = "py313"
 extend-exclude = [
-  "cookiecutter_community_health_docs.egg-info",
+  "cookiecutter_repo_governance.egg-info",
   "temp",
   "{{cookiecutter.project_slug}}",
   "*_FIXED.py",
