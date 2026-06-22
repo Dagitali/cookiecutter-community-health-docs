@@ -1,0 +1,24 @@
+# config.yml
+# cookiecutter-repo-governance
+#
+# Copyright © 2026 Dagitali LLC. All rights reserved.
+#
+# GitHub issue template configuration.
+#
+# Responsibilities
+# - Disable blank issues and direct users toward the supported support paths.
+#
+# Maintainer Notes
+# - Keep these links aligned with the repository's current Discussions and
+#   security-reporting surfaces.
+
+---
+
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and usage help
+    url: https://github.com/Dagitali/cookiecutter-repo-governance/discussions
+    about: Use GitHub Discussions for usage help, docs feedback, and design questions.
+  - name: Security disclosures
+    url: https://github.com/Dagitali/cookiecutter-repo-governance/security/policy
+    about: Report security issues privately under the repository security policy.
