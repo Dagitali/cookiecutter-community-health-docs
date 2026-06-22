@@ -59,10 +59,11 @@ latest active minor line.
   help, and best practices.
 - **Docs Feedback & Examples**: Please use [GitHub Discussions][discussions] for documentation
   gaps, unclear sections, and example-sharing.
-- **Bugs & Feature Requests**: Open an issue in the [GitHub Issues][issues] tracker.
-- **Security Issues**: See [SECURITY.md](SECURITY.md) for responsible disclosure.
-- **Documentation**: See the [README](README.md), generated template files, and
-  [REFERENCES.md]({{cookiecutter.project_slug}}/REFERENCES.md) for guides and references.
+- **Bugs & Feature Requests**: Open an issue in the [GitHub Issues][issues] tracker using the
+  repository issue forms.
+- **Security Issues**: See [SECURITY.md] for responsible disclosure.
+- **Documentation**: See [README.md], generated template files, and [REFERENCES.md] for guides and
+  references.
 
 In general:
 
@@ -109,3 +110,6 @@ future governance-document improvements.
 
 [discussions]: https://github.com/Dagitali/cookiecutter-repo-governance/discussions
 [issues]: https://github.com/Dagitali/cookiecutter-repo-governance/issues
+[README.md]: README.md
+[REFERENCES.md]: REFERENCES.md
+[SECURITY.md]: SECURITY.md
