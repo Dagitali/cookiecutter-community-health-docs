@@ -35,10 +35,9 @@ def _local_markdown_links(
     reference_targets = re.findall(r'(?m)^\[[^\]]+\]:\s+(\S+)', markdown)
 
     for target in inline_targets + reference_targets:
-        if (
-            target.startswith(('http://', 'https://', 'mailto:', '#'))
-            or target.startswith('<http')
-        ):
+        if target.startswith(
+            ('http://', 'https://', 'mailto:', '#'),
+        ) or target.startswith('<http'):
             continue
         links.append(target.strip('<>'))
 
