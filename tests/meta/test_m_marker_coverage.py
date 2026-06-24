@@ -15,6 +15,19 @@ from tests.pytest_helpers import TESTS_ROOT
 
 # pylint: disable=import-outside-toplevel,protected-access,unused-argument
 
+# SECTION: FIXTURES ========================================================= #
+
+
+@pytest.fixture(name='registered_markers')
+def registered_markers_fixture(
+    pytestconfig: pytest.Config,
+) -> set[str]:
+    """Return marker names registered in the active pytest configuration."""
+    return {
+        marker.split(':', maxsplit=1)[0] for marker in pytestconfig.getini('markers')
+    }
+
+
 # SECTION: TESTS ============================================================ #
 
 
@@ -36,12 +49,8 @@ def test_root_collection_hook_covers_existing_test_suite_directories() -> None:
     ids=str,
 )
 def test_root_collection_hook_uses_registered_pytest_markers(
-    pytestconfig: pytest.Config,
+    registered_markers: set[str],
     marker_name: str,
 ) -> None:
     """Test that root marker-hook entries use registered pytest markers."""
-    registered_markers = {
-        marker.split(':', maxsplit=1)[0] for marker in pytestconfig.getini('markers')
-    }
-
     assert marker_name in registered_markers
