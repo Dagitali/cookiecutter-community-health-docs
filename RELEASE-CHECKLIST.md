@@ -138,3 +138,5 @@ git push origin v1.2.6
 - [x] Add automated checks that README names every workflow from the CI/CD workflow map.
 - [x] Add Git hosting platform references for every supported `git_service` option.
 - [x] Add automated checks that REFERENCES covers every supported `git_service` option.
+- [x] Add automated checks that README documents every public Cookiecutter input.
+- [x] Add automated checks that README generated-file inventory covers every template source file.
