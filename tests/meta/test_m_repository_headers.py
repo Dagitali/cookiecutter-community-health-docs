@@ -16,6 +16,11 @@ from tests.pytest_helpers import PROJECT_ROOT
 
 # pylint: disable=import-outside-toplevel,protected-access,unused-argument
 
+# SECTION: TYPE ALIASES ===================================================== #
+
+
+type MaintenanceFile = tuple[str, str]
+
 # SECTION: INTERNAL CONSTANTS =============================================== #
 
 
@@ -67,15 +72,35 @@ _REFERENCE_SECTION_PATTERN = re.compile(
 )
 
 
+# SECTION: FIXTURES ========================================================= #
+
+
+@pytest.fixture(
+    name='maintenance_file',
+    params=_MAINTENANCE_HEADER_FILES,
+    ids=str,
+    scope='module',
+)
+def maintenance_file_fixture(
+    request: pytest.FixtureRequest,
+) -> MaintenanceFile:
+    """Return one repository-maintenance file path and text."""
+    relative_path = str(request.param)
+    text = (PROJECT_ROOT / relative_path).read_text(
+        encoding='utf-8',
+        errors='ignore',
+    )
+    return relative_path, text
+
+
 # SECTION: TESTS ============================================================ #
 
 
-@pytest.mark.parametrize('relative_path', _MAINTENANCE_HEADER_FILES, ids=str)
 def test_repository_maintenance_headers_use_standard_sections(
-    relative_path: str,
+    maintenance_file: MaintenanceFile,
 ) -> None:
     """Test that repository-maintenance files use standard header sections."""
-    text = (PROJECT_ROOT / relative_path).read_text(encoding='utf-8')
+    relative_path, text = maintenance_file
     missing = [
         section for section in _REQUIRED_HEADER_SECTIONS if f'# {section}' not in text
     ]
@@ -83,12 +108,11 @@ def test_repository_maintenance_headers_use_standard_sections(
     assert not missing, f'{relative_path} is missing header sections: {missing}'
 
 
-@pytest.mark.parametrize('relative_path', _MAINTENANCE_HEADER_FILES, ids=str)
 def test_repository_maintenance_references_are_labeled(
-    relative_path: str,
+    maintenance_file: MaintenanceFile,
 ) -> None:
     """Test that reference entries use a standard descriptive label suffix."""
-    text = (PROJECT_ROOT / relative_path).read_text(encoding='utf-8', errors='ignore')
+    relative_path, text = maintenance_file
     offenders = [
         line
         for match in _REFERENCE_SECTION_PATTERN.finditer(text)
