@@ -19,7 +19,7 @@ credential handling, or emergency operator procedures.
 
 ## Workflow Overview
 
-cookiecutter-repo-governance currently separates automation into four workflows:
+cookiecutter-repo-governance currently separates automation into fo4ur workflows:
 
 - `pr.yml` for required pull-request and merge-queue gates
 - `ci.yml` for heavier pre-merge validation on protected branches and merge queue
@@ -43,6 +43,11 @@ Current responsibilities:
 
 - Enforce GitFlow pull-request target rules
 - Allow merge-queue events to inherit queued pull-request target validation
+- Run Ruff lint checks on the primary and next supported Python lines
+- Run meta guardrails before the broader test suite
+- Run tests with coverage on the primary and next supported Python lines
+- Run docstring lint checks on the primary supported Python line
+- Run type checks for the post-generation hook module
 
 This workflow runs on pull requests into protected branches and also on pushes to the working and
 release-oriented branches that feed later validation.
@@ -76,7 +81,7 @@ Workflow name: `Release`
 
 Primary role:
 
-- validate and publish tagged template releases
+- Validate and publish tagged template releases
 
 Current responsibilities:
 

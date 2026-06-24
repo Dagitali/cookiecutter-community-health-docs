@@ -6,17 +6,17 @@
 # GitHub Actions workflow for required pull-request (PR) gates.
 #
 # Responsibilities
-# - Run required pull-request and merge-queue branch-policy gates for GitFlow
-#   target branches.
-# - Run the lightweight branch-policy baseline on GitFlow branches so working-
-#   branch pushes get fast remote feedback before a PR is opened.
+# - Run required pull-request and merge-queue integration gates: GitFlow
+#   target-branch validation, linting, docstring linting, type-checking, and
+#   tests.
+# - Run the lightweight baseline on GitFlow branches so working-branch pushes
+#   get fast remote feedback before a PR is opened.
 #
 # Maintainer Notes
 # - Global permissions are intentionally omitted; each job declares the minimum
 #   permissions it needs.
-# - External GitHub Actions are not used here because this workflow relies only
-#   on shell logic and GitHub-provided event context; pin any future external
-#   actions to full commit SHAs to reduce supply-chain risk.
+# - External GitHub Actions are pinned to full commit SHAs to reduce supply-
+#   chain risk.
 # - Heavier protected-branch validation lives in `ci.yml`; keep this workflow
 #   focused on the faster required baseline used by branch protection.
 # - The dynamic run name is part of the workflow contract: it should identify
@@ -24,6 +24,7 @@
 #   review clarity.
 #
 # References
+# - GitHub Actions Python guide: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 # - GitHub Actions expressions reference: https://docs.github.com/en/actions/learn-github-actions/expressions
 # - GitHub Actions security hardening guide: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions
 # - GitHub Actions workflow syntax reference: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
@@ -71,6 +72,8 @@ permissions: {}
 
 env:
   DEFAULT_PYTHON_VERSION: '3.13'
+  # Keep this width aligned with .ruff.toml:line-length.
+  PY_LINE_LENGTH: '88'
 
 jobs:
   pr-target-guard:
@@ -110,3 +113,96 @@ jobs:
           fi
 
           echo 'No GitFlow target-branch restriction matched for this PR target.'
+
+  lint:
+    name: Lint on Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy: &python-matrix
+      matrix:
+        python-version: ['3.13', '3.14']
+    permissions: &permissions_read
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # Pinned v6.0.3
+      - name: Bootstrap Python
+        uses: Dagitali/python-bootstrap@eebcaa17afad3256b944399e1e34ba355b30e895  # Pinned v0.1.3
+        with:
+          python-version: ${{ matrix.python-version }}
+          pip-install: "-e .[dev]"
+      - name: Ruff check
+        run: |
+          ruff version
+          ruff check .
+          # ruff format --check .
+          files="$(git ls-files '*.py')"
+          if [ -n "$files" ]; then
+            autopep8 --diff --exit-code --max-line-length=${PY_LINE_LENGTH} $files
+          fi
+
+  test:
+    name: Test on Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy: *python-matrix
+    permissions: *permissions_read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # Pinned v6.0.3
+      - name: Bootstrap Python
+        uses: Dagitali/python-bootstrap@eebcaa17afad3256b944399e1e34ba355b30e895  # Pinned v0.1.3
+        with:
+          python-version: ${{ matrix.python-version }}
+          pip-install: "-e .[dev]"
+
+      - name: Run meta guardrails
+        run: pytest -q tests/meta
+
+      - name: Run tests (with coverage)
+        run: |
+          pytest -q \
+            -m "not perf" \
+            --cov \
+            --cov-branch \
+            --cov-config=.coveragerc \
+            --cov-report=term-missing \
+            --cov-report=xml \
+            tests/
+
+  doclint:
+    name: Doclint on Python 3.13
+    runs-on: ubuntu-latest
+    permissions: *permissions_read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # Pinned v6.0.3
+      - name: Bootstrap Python
+        uses: Dagitali/python-bootstrap@eebcaa17afad3256b944399e1e34ba355b30e895  # Pinned v0.1.3
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
+          pip-install: "-e .[dev]"
+      - name: Run pydocstyle
+        run: |
+          find hooks tests -type f -name '*.py' \
+            ! -path '*/__pycache__/*' \
+            -print0 | xargs -0 pydocstyle --add-ignore=D102,D401
+      - name: Run pydoclint
+        run: |
+          pydoclint --style numpy \
+            hooks tests
+
+  typecheck:
+    name: Type-check on Python 3.13
+    runs-on: ubuntu-latest
+    permissions: *permissions_read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # Pinned v6.0.3
+      - name: Bootstrap Python
+        uses: Dagitali/python-bootstrap@eebcaa17afad3256b944399e1e34ba355b30e895  # Pinned v0.1.3
+        with:
+          phase: typecheck
+          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
+          pip-install: "-e .[dev]"
+          typecheck-command: |
+            mypy --version
+            mypy hooks

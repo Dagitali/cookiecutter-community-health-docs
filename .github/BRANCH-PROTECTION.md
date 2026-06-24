@@ -34,9 +34,9 @@ authoritative enforcement layer in the current repository configuration.
 
 Choose the required-check baseline that matches how the repository accepts pull requests.
 
-Because `.github/workflows/ci.yml` uses a matrix for Python versions, GitHub exposes expanded
-matrix job names in the branch protection UI rather than the template names shown in the YAML.
-Select those expanded names when configuring required checks.
+Because GitHub Actions workflows can use matrices for Python versions and other dimensions, GitHub
+exposes expanded matrix job names in the branch protection UI rather than the template names shown
+in the YAML. Select those expanded names when configuring required checks.
 
 The current workflow model is staged rather than post-merge:
 
@@ -57,31 +57,43 @@ Use this baseline for protected-branch merge gates. It covers the checks that ru
 #### Policy Categories
 
 - GitFlow target-branch enforcement for pull requests
+- Linting on the primary supported Python line
+- Docstring linting on the primary supported Python line
+- Tests on the primary supported Python line
+- Type-checking on the primary supported Python line
 
-This category defines the minimum merge gate for protected branches.
+These categories define the minimum merge gate for protected branches.
 
 #### Current Resolved Check Names
 
 In the current PR-gates workflow, the baseline above resolves to:
 
 - `Guard PR target branch`
+- `Lint on Python 3.13`
+- `Test on Python 3.13`
+- `Doclint on Python 3.13`
+- `Type-check on Python 3.13`
 
 Additional CI jobs are still useful, and they can be made required for normal pull-request merges
 into `main` and `develop` if you want the heavier pre-merge workflow to block those merges.
 
 #### Current Required Check Names To Select In GitHub
 
-When configuring `main` or `develop` branch protection rules in the GitHub UI, select this PR-gate
-job name as the minimum required check:
+When configuring `main` or `develop` branch protection rules in the GitHub UI, select these PR-gate
+job names as the minimum required checks:
 
 - `Guard PR target branch`
+- `Lint on Python 3.13`
+- `Test on Python 3.13`
+- `Doclint on Python 3.13`
+- `Type-check on Python 3.13`
 
 ### Advisory Categories
 
-- Pre-commit repository hygiene checks
-- Ruff linting for hooks and tests
-- Unit tests for post-generation hook helpers
-- Integration tests for rendered Cookiecutter output
+- Lint on additional supported Python lines
+- Tests on additional supported Python lines
+- Repository hygiene checks
+- Template validation on additional supported Python lines
 
 ### Current Advisory Examples
 
@@ -90,7 +102,7 @@ In the current PR-gates workflow, those advisory categories resolve to:
 - `Lint on Python 3.14`
 - `Test on Python 3.14`
 
-In the current CI workflow, those advisory categories resolve to:
+In the current CI workflow, those advisory categories also include:
 
 - `Repository hygiene checks`
 - `Template validation on Python 3.13`
@@ -146,7 +158,8 @@ Recommended baseline:
 
 - Require the full pull-request baseline from `pr.yml`.
 - Consider also requiring the heavier `ci.yml` jobs on `main` if you want release-oriented pull
-  requests into `main` to satisfy extended repository hygiene and template validation before merge.
+  requests into `main` to satisfy the extended repository hygiene and template validation before
+  merge.
 
 Optional hardening:
 
@@ -167,14 +180,14 @@ Branch-specific additions:
 Recommended baseline:
 
 - Require the full pull-request baseline from `pr.yml`.
-- Consider also requiring the heavier `ci.yml` jobs on `develop` if you want extended repository
-  hygiene and template validation to block feature integration into `develop`.
+- Consider also requiring the heavier `ci.yml` jobs on `develop` if you want the extended
+  repository hygiene and template validation to block feature integration into `develop`.
 
 Optional hardening:
 
-- Require Code Owners review for sensitive paths when practical
-- Require merge queue if `develop` receives enough concurrent pull requests to make merge-order
-  conflicts common
+- Require Code Owners review for sensitive paths
+- Require merge queue if `develop` receives enough concurrent pull request traffic to make
+  merge-order conflicts common
 
 ## How To Disallow Direct Pushes
 
@@ -200,22 +213,29 @@ In GitHub:
 
 ## How To Update Required Checks In GitHub
 
-After workflow job names change, update protected-branch rules so required checks match the current
-workflow job names.
+After the workflow split and the later `ci.yml` trigger redesign, update the protected-branch
+protections in GitHub so the minimum required checks come from `pr.yml`, then add the heavier
+`ci.yml` checks if you want that extended pre-merge validation to be blocking on `main` and
+`develop`.
 
 In GitHub:
 
 1. Open repository `Settings`.
 2. Open `Branches`.
 3. Open the branch protection rule for `main`.
-4. Under `Require status checks to pass`, remove stale check names.
-5. Add this minimum required check from `pr.yml`:
-  - `Guard PR target branch`
+4. Under `Require status checks to pass`, remove any stale checks emitted by the heavier CI or old
+   workflow filenames.
+5. Add these minimum required checks from `pr.yml`:
+   - `Guard PR target branch`
+   - `Lint on Python 3.13`
+   - `Test on Python 3.13`
+   - `Doclint on Python 3.13`
+   - `Type-check on Python 3.13`
 6. If you want the heavier pre-merge `ci.yml` workflow to block ordinary pull-request merges into
    `main` and `develop`, also add these checks:
-  - `Repository hygiene checks`
-  - `Template validation on Python 3.13`
-  - `Template validation on Python 3.14`
+   - `Repository hygiene checks`
+   - `Template validation on Python 3.13`
+   - `Template validation on Python 3.14`
 7. Save the `main` branch protection rule.
 8. Repeat the same status-check set for the `develop` branch protection rule unless you
    intentionally want a different protected-branch policy.
@@ -236,13 +256,12 @@ With that configuration in place:
 
 - GitHub required checks are tied to the exact job names emitted by the workflows after matrix
   expansion. In this repository, that means branch protection should reference concrete names such
-  as `Guard PR target branch` and `Template validation on Python 3.13`, not the template strings
-  shown in the YAML.
-- Treat version-specific names in this document as current examples, not permanent policy. When the
-  support matrix changes, refresh the exact examples here and in the GitHub branch protection UI to
-  match the emitted checks.
+  as `Guard PR target branch` and `Lint on Python 3.13`, not the template strings shown in the YAML.
+- Treat version-specific and OS-specific names in this document as current examples, not permanent
+  policy. When the support matrix changes, refresh the exact examples here and in the GitHub branch
+  protection UI to match the emitted checks.
 - The heavier CI jobs now run on both `pull_request` and `merge_group` for `main` and `develop`, so
-  protected-branch required checks can stay aligned between normal pull-request merges and merge
+  protected-branch required checks can stay aligned between normal pull request merges and merge
   queue.
 - The PR-target guard intentionally enforces these GitFlow merge paths: `feature/* -> develop`,
   `release/* -> main`, and `hotfix/* -> main`.
