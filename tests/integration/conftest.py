@@ -12,6 +12,12 @@ from pathlib import Path
 import pytest
 from cookiecutter.main import cookiecutter  # type: ignore[import-untyped]
 
+# SECTION: TYPE ALIASES ===================================================== #
+
+
+type RenderProject = Callable[..., Path]
+
+
 # SECTION: FIXTURES ========================================================= #
 
 
@@ -27,7 +33,7 @@ def release_config_fixture(
 def render_project_fixture(
     project_root: Path,
     tmp_path: Path,
-) -> Callable[..., Path]:
+) -> RenderProject:
     """Create a callable that renders the template into a temp directory."""
 
     def _render_project(**extra_context: str) -> Path:
