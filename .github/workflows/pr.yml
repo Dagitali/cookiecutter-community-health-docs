@@ -154,13 +154,18 @@ jobs:
           python-version: ${{ matrix.python-version }}
           pip-install: "-e .[dev]"
 
+      - name: Run meta guardrails
+        run: pytest -q tests/meta/test_m_repository_docs.py
+
       - name: Run tests (with coverage)
         run: |
           pytest -q \
+            -m "not perf" \
             --cov \
             --cov-branch \
             --cov-config=.coveragerc \
             --cov-report=term-missing \
+            --cov-report=xml \
             tests/
 
   doclint:
