@@ -12,6 +12,12 @@ from types import ModuleType
 
 import pytest
 
+# SECTION: TYPE ALIASES ===================================================== #
+
+
+type PathFactory = Callable[..., Path]
+
+
 # SECTION: PRAGMAS ========================================================== #
 
 # pylint: disable=import-outside-toplevel,protected-access,unused-argument
@@ -58,7 +64,7 @@ class TestRemoveEmptyDirectory:
     def test_handles_directories(
         self,
         post_gen_project_module: ModuleType,
-        path_factory: Callable[..., Path],
+        path_factory: PathFactory,
         target_name: str,
         populate_target: bool,
         expected_exists: bool,
@@ -77,7 +83,7 @@ class TestRemoveEmptyDirectory:
     def test_ignores_file(
         self,
         post_gen_project_module: ModuleType,
-        path_factory: Callable[..., Path],
+        path_factory: PathFactory,
     ) -> None:
         """Test that :func:`_remove_empty_directory` ignores a file."""
         target = path_factory('file.txt')
@@ -100,7 +106,7 @@ class TestRemovePath:
     def test_removes_existing_path(
         self,
         post_gen_project_module: ModuleType,
-        path_factory: Callable[..., Path],
+        path_factory: PathFactory,
         target_name: str,
         directory: bool,
         populated: bool,
