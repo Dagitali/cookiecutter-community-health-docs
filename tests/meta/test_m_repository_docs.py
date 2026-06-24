@@ -11,10 +11,11 @@ from collections.abc import Callable
 from pathlib import Path
 
 import pytest
-from tests.helpers import PROJECT_ROOT
-from tests.helpers import UNRESOLVED_TEMPLATE_PATTERNS
-from tests.helpers import load_cookiecutter_config
-from tests.helpers import local_markdown_links
+
+from tests.pytest_helpers import PROJECT_ROOT
+from tests.pytest_helpers import UNRESOLVED_TEMPLATE_PATTERNS
+from tests.pytest_helpers import load_cookiecutter_config
+from tests.pytest_helpers import local_markdown_links
 
 # SECTION: PRAGMAS ========================================================== #
 
