@@ -81,7 +81,7 @@ Workflow name: `Release`
 
 Primary role:
 
-- Validate and publish tagged template releases
+- Validate and publish tagged releases
 
 Current responsibilities:
 
