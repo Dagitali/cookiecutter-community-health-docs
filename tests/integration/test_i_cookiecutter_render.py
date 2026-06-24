@@ -7,7 +7,6 @@ template.
 
 from __future__ import annotations
 
-import re
 from collections.abc import Callable
 from collections.abc import Iterable
 from datetime import datetime
@@ -16,16 +15,17 @@ from typing import Any
 
 import pytest
 
+from tests.pytest_helpers import PROJECT_ROOT
+from tests.pytest_helpers import SUPPORTED_GIT_SERVICES
+from tests.pytest_helpers import UNRESOLVED_TEMPLATE_PATTERNS
+from tests.pytest_helpers import local_markdown_links
+from tests.pytest_helpers import markdown_files
+
 # SECTION: PRAGMAS ========================================================== #
 
 # pylint: disable=import-outside-toplevel,protected-access,unused-argument
 
 # SECTION: CONSTANTS ======================================================== #
-
-
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-GIT_SERVICES = ('GitHub', 'GitLab', 'Bitbucket', 'Azure DevOps')
-UNRESOLVED_TEMPLATE_PATTERNS = ('{{', '{%', '{#')
 
 
 # SECTION: INTERNAL FUNCTIONS =============================================== #
@@ -59,27 +59,6 @@ def _assert_text(
 
     for missing_text in omits:
         assert missing_text not in text
-
-
-def _markdown_files(
-    project: Path,
-) -> list[Path]:
-    """Return generated Markdown files below the rendered project."""
-    return sorted(project.rglob('*.md'))
-
-
-def _local_markdown_links(
-    markdown: str,
-) -> list[str]:
-    """Return local Markdown link targets from a Markdown document."""
-    links = []
-    for target in re.findall(r'(?<!!)\[[^\]]+\]\(([^)]+)\)', markdown):
-        if target.startswith(
-            ('http://', 'https://', 'mailto:', '#'),
-        ) or target.startswith('<http'):
-            continue
-        links.append(target.strip('<>'))
-    return links
 
 
 # SECTION: TESTS ============================================================ #
@@ -532,7 +511,7 @@ class TestGeneratedDocumentLinks:
 
     @pytest.mark.parametrize(
         'git_service',
-        GIT_SERVICES,
+        SUPPORTED_GIT_SERVICES,
     )
     def test_contributing_avoids_unrendered_operational_links(
         self,
@@ -561,7 +540,7 @@ class TestGeneratedDocumentLinks:
 
     @pytest.mark.parametrize(
         'git_service',
-        GIT_SERVICES,
+        SUPPORTED_GIT_SERVICES,
     )
     def test_generated_markdown_links_point_to_existing_files(
         self,
@@ -571,9 +550,9 @@ class TestGeneratedDocumentLinks:
         """Test that generated local Markdown links resolve to rendered files."""
         project = render_project(git_service=git_service)
 
-        for markdown_file in _markdown_files(project):
+        for markdown_file in markdown_files(project):
             markdown = markdown_file.read_text(encoding='utf-8')
-            for link in _local_markdown_links(markdown):
+            for link in local_markdown_links(markdown):
                 target = link.split('#', maxsplit=1)[0]
                 if not target:
                     continue
@@ -683,7 +662,7 @@ class TestGeneratedOutputQuality:
 
     @pytest.mark.parametrize(
         'git_service',
-        GIT_SERVICES,
+        SUPPORTED_GIT_SERVICES,
     )
     def test_rendered_markdown_has_no_unresolved_template_syntax(
         self,
@@ -692,7 +671,7 @@ class TestGeneratedOutputQuality:
     ) -> None:
         """Test that rendered Markdown contains no unresolved Jinja syntax."""
         project = render_project(git_service=git_service)
-        for markdown_file in _markdown_files(project):
+        for markdown_file in markdown_files(project):
             markdown = markdown_file.read_text(encoding='utf-8')
             assert not any(
                 pattern in markdown for pattern in UNRESOLVED_TEMPLATE_PATTERNS
