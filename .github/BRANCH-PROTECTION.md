@@ -226,16 +226,16 @@ In GitHub:
 4. Under `Require status checks to pass`, remove any stale checks emitted by the heavier CI or old
    workflow filenames.
 5. Add these minimum required checks from `pr.yml`:
-  - `Guard PR target branch`
-  - `Lint on Python 3.13`
-  - `Test on Python 3.13`
-  - `Doclint on Python 3.13`
-  - `Type-check on Python 3.13`
+   - `Guard PR target branch`
+   - `Lint on Python 3.13`
+   - `Test on Python 3.13`
+   - `Doclint on Python 3.13`
+   - `Type-check on Python 3.13`
 6. If you want the heavier pre-merge `ci.yml` workflow to block ordinary pull-request merges into
-  `main` and `develop`, also add these checks:
-  - `Repository hygiene checks`
-  - `Template validation on Python 3.13`
-  - `Template validation on Python 3.14`
+   `main` and `develop`, also add these checks:
+   - `Repository hygiene checks`
+   - `Template validation on Python 3.13`
+   - `Template validation on Python 3.14`
 7. Save the `main` branch protection rule.
 8. Repeat the same status-check set for the `develop` branch protection rule unless you
    intentionally want a different protected-branch policy.
