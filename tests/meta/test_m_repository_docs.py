@@ -10,6 +10,8 @@ import json
 import re
 from pathlib import Path
 
+import pytest
+
 # SECTION: PRAGMAS ========================================================== #
 
 # pylint: disable=import-outside-toplevel,protected-access,unused-argument
@@ -20,6 +22,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 TEMPLATE_ROOT = PROJECT_ROOT / '{{cookiecutter.project_slug}}'
 WORKFLOWS_ROOT = PROJECT_ROOT / '.github' / 'workflows'
+UNRESOLVED_TEMPLATE_PATTERNS = ('{{', '{%', '{#')
 
 
 # SECTION: INTERNAL FUNCTIONS =============================================== #
@@ -315,26 +318,44 @@ class TestReferences:
 class TestRootMarkdown:
     """Meta test suite for root Markdown quality."""
 
-    def test_root_markdown_has_no_unresolved_template_syntax(self) -> None:
+    @pytest.mark.parametrize(
+        'markdown_file',
+        _repository_markdown_files(),
+        ids=lambda path: path.relative_to(PROJECT_ROOT).as_posix(),
+    )
+    def test_root_markdown_has_no_unresolved_template_syntax(
+        self,
+        markdown_file: Path,
+    ) -> None:
         """Test that root Markdown contains no unresolved Jinja syntax."""
-        unresolved_patterns = ('{{', '{%', '{#')
+        markdown = markdown_file.read_text(encoding='utf-8')
 
-        for markdown_file in _repository_markdown_files():
-            markdown = markdown_file.read_text(encoding='utf-8')
-            assert not any(pattern in markdown for pattern in unresolved_patterns), (
-                f'{markdown_file.relative_to(PROJECT_ROOT)} contains unresolved '
-                'Cookiecutter or Jinja syntax'
-            )
+        has_unresolved_syntax = any(
+            pattern in markdown for pattern in UNRESOLVED_TEMPLATE_PATTERNS
+        )
 
-    def test_root_markdown_links_point_to_existing_files(self) -> None:
+        assert not has_unresolved_syntax, (
+            f'{markdown_file.relative_to(PROJECT_ROOT)} contains unresolved '
+            'Cookiecutter or Jinja syntax'
+        )
+
+    @pytest.mark.parametrize(
+        'markdown_file',
+        _repository_markdown_files(),
+        ids=lambda path: path.relative_to(PROJECT_ROOT).as_posix(),
+    )
+    def test_root_markdown_links_point_to_existing_files(
+        self,
+        markdown_file: Path,
+    ) -> None:
         """Test that root local Markdown links resolve to repository files."""
-        for markdown_file in _repository_markdown_files():
-            markdown = markdown_file.read_text(encoding='utf-8')
-            for link in _local_markdown_links(markdown):
-                target = link.split('#', maxsplit=1)[0]
-                if not target:
-                    continue
-                assert (markdown_file.parent / target).exists(), (
-                    f'{markdown_file.relative_to(PROJECT_ROOT)} links to '
-                    f'missing target {link}'
-                )
+        markdown = markdown_file.read_text(encoding='utf-8')
+
+        for link in _local_markdown_links(markdown):
+            target = link.split('#', maxsplit=1)[0]
+            if not target:
+                continue
+            assert (markdown_file.parent / target).exists(), (
+                f'{markdown_file.relative_to(PROJECT_ROOT)} links to '
+                f'missing target {link}'
+            )
