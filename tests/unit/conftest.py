@@ -20,20 +20,13 @@ import pytest
 pytestmark = pytest.mark.unit
 
 
-# SECTION: CONSTANTS ======================================================== #
-
-
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-POST_GEN_PROJECT_PATH = PROJECT_ROOT / 'hooks' / 'post_gen_project.py'
-
-
 # SECTION: FIXTURES ========================================================= #
 
 
 @pytest.fixture(name='path_factory')
 def path_factory_fixture(
     tmp_path: Path,
-) -> Callable[[str, bool, bool], Path]:
+) -> Callable[..., Path]:
     """Create test files or directories under ``tmp_path``."""
 
     def _make_path(
@@ -55,11 +48,13 @@ def path_factory_fixture(
 
 
 @pytest.fixture(name='post_gen_project_module')
-def post_gen_project_module_fixture() -> ModuleType:
+def post_gen_project_module_fixture(
+    project_root: Path,
+) -> ModuleType:
     """Load the Cookiecutter post-generation hook module from its file path."""
     spec = importlib.util.spec_from_file_location(
         'post_gen_project',
-        POST_GEN_PROJECT_PATH,
+        project_root / 'hooks' / 'post_gen_project.py',
     )
     assert spec is not None
     assert spec.loader is not None
