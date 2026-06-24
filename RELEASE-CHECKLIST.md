@@ -132,3 +132,5 @@ git push origin v1.2.6
 - [x] Add automated checks that README generated-file inventory points to template files.
 - [x] Remove stale root `SUPPORT.md` reference to missing `REFERENCES.md`.
 - [x] Make generated post-release checklist guidance branch-model-aware.
+- [x] Add a CI/CD workflow map for the template repository workflows.
+- [x] Add automated checks that the CI/CD workflow map lists every GitHub Actions workflow.
