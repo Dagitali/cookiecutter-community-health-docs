@@ -153,3 +153,4 @@ git push origin v1.2.6
 - [x] Update the CI/CD workflow map for the protected-branch CI trigger model.
 - [x] Align the CI/CD workflow map required-check summary with branch protection guidance.
 - [x] Remove stale CI workflow lint-step TODO commentary.
+- [x] Add automated checks that the CI/CD workflow map documents current PR and CI check names.

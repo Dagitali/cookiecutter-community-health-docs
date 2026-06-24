@@ -134,8 +134,13 @@ At the time of writing, the expected required checks are:
 - `Doclint on Python 3.13`
 - `Type-check on Python 3.13`
 
-The natural next checks to require, if you want the heavier protected-branch gate to block merges on
-GitHub too, are:
+The additional advisory PR-gate checks are:
+
+- `Lint on Python 3.14`
+- `Test on Python 3.14`
+
+The natural next checks to require, if you also want the heavier protected-branch gate to block
+merges on GitHub, are:
 
 - `Repository hygiene checks`
 - `Template validation on Python 3.13`
