@@ -23,38 +23,26 @@ class TestAsBool:
     """Unit test suite for :func:`_as_bool`."""
 
     @pytest.mark.parametrize(
-        'value',
+        ('value', 'expected'),
         [
-            'yes',
-            'Y',
-            ' true ',
-            '1',
+            ('yes', True),
+            ('Y', True),
+            (' true ', True),
+            ('1', True),
+            ('no', False),
+            ('false', False),
+            ('0', False),
+            ('', False),
         ],
     )
-    def test_recognizes_truthy_values(
+    def test_coerces_string_values(
         self,
         post_gen_project_module: ModuleType,
         value: str,
+        expected: bool,
     ) -> None:
-        """Test that :func:`_as_bool` recognizes various truthy string values."""
-        assert post_gen_project_module._as_bool(value)
-
-    @pytest.mark.parametrize(
-        'value',
-        [
-            'no',
-            'false',
-            '0',
-            '',
-        ],
-    )
-    def test_rejects_falsey_values(
-        self,
-        post_gen_project_module: ModuleType,
-        value: str,
-    ) -> None:
-        """Test that :func:`_as_bool` rejects various falsey string values."""
-        assert not post_gen_project_module._as_bool(value)
+        """Test that :func:`_as_bool` coerces supported string values."""
+        assert post_gen_project_module._as_bool(value) is expected
 
 
 class TestRemoveEmptyDirectory:
@@ -102,25 +90,27 @@ class TestRemoveEmptyDirectory:
 class TestRemovePath:
     """Unit test suite for :func:`_remove_path`."""
 
-    def test_removes_file(
+    @pytest.mark.parametrize(
+        ('target_name', 'directory', 'populated'),
+        [
+            ('target.txt', False, False),
+            ('target', True, True),
+        ],
+    )
+    def test_removes_existing_path(
         self,
         post_gen_project_module: ModuleType,
         path_factory: Callable[..., Path],
+        target_name: str,
+        directory: bool,
+        populated: bool,
     ) -> None:
-        """Test that :func:`_remove_path` removes a file."""
-        target = path_factory('target.txt')
-
-        post_gen_project_module._remove_path(target)
-
-        assert not target.exists()
-
-    def test_removes_directory_tree(
-        self,
-        post_gen_project_module: ModuleType,
-        path_factory: Callable[..., Path],
-    ) -> None:
-        """Test that :func:`_remove_path` removes a directory tree."""
-        target = path_factory('target', directory=True, populated=True)
+        """Test that :func:`_remove_path` removes existing files and trees."""
+        target = path_factory(
+            target_name,
+            directory=directory,
+            populated=populated,
+        )
 
         post_gen_project_module._remove_path(target)
 
