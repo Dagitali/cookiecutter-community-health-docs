@@ -36,9 +36,12 @@ def test_root_collection_hook_covers_existing_test_suite_directories() -> None:
     ids=str,
 )
 def test_root_collection_hook_uses_registered_pytest_markers(
+    pytestconfig: pytest.Config,
     marker_name: str,
 ) -> None:
     """Test that root marker-hook entries use registered pytest markers."""
-    pytest_config = (TESTS_ROOT.parent / 'pytest.ini').read_text(encoding='utf-8')
+    registered_markers = {
+        marker.split(':', maxsplit=1)[0] for marker in pytestconfig.getini('markers')
+    }
 
-    assert f'    {marker_name}:' in pytest_config
+    assert marker_name in registered_markers
