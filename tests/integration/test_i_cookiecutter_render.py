@@ -15,7 +15,6 @@ from typing import Any
 
 import pytest
 
-from tests.pytest_helpers import PROJECT_ROOT
 from tests.pytest_helpers import SUPPORTED_GIT_SERVICES
 from tests.pytest_helpers import UNRESOLVED_TEMPLATE_PATTERNS
 from tests.pytest_helpers import local_markdown_links
@@ -679,14 +678,11 @@ class TestReleaseNotesConfiguration:
     )
     def test_release_notes_categories_include_expected_labels(
         self,
+        release_config: str,
         category: str,
         labels: list[str],
     ) -> None:
         """Test that release-note categories keep expected labels."""
-        release_config = (PROJECT_ROOT / '.github' / 'release.yml').read_text(
-            encoding='utf-8',
-        )
-
         assert f'title: {category}' in release_config
         for label in labels:
             assert f'- {label}' in release_config
@@ -700,11 +696,8 @@ class TestReleaseNotesConfiguration:
     )
     def test_release_notes_exclude_internal_labels(
         self,
+        release_config: str,
         label: str,
     ) -> None:
         """Test that release-note generation excludes internal labels."""
-        release_config = (PROJECT_ROOT / '.github' / 'release.yml').read_text(
-            encoding='utf-8',
-        )
-
         assert f'- {label}' in release_config
