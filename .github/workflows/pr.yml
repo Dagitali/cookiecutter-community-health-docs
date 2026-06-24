@@ -6,8 +6,8 @@
 # GitHub Actions workflow for required pull-request (PR) gates.
 #
 # Responsibilities
-# - Run required pull-request and merge-queue branch-policy gates for GitFlow
-#   target branches.
+# - Run required pull-request and merge-queue integration gates: GitFlow
+#   target-branch validation.
 # - Run the lightweight baseline on GitFlow branches so working-branch pushes
 #   get fast remote feedback before a PR is opened.
 #
