@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable
+from collections.abc import Iterable
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -23,9 +24,27 @@ import pytest
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+GIT_SERVICES = ('GitHub', 'GitLab', 'Bitbucket', 'Azure DevOps')
+UNRESOLVED_TEMPLATE_PATTERNS = ('{{', '{%', '{#')
 
 
 # SECTION: INTERNAL FUNCTIONS =============================================== #
+
+
+def _assert_paths(
+    project: Path,
+    *,
+    existing: Iterable[str] = (),
+    missing: Iterable[str] = (),
+) -> None:
+    """Assert rendered paths exist or are omitted under a project."""
+    for expected_path in existing:
+        assert (project / expected_path).exists(), f'{expected_path} was not rendered'
+
+    for missing_path in missing:
+        assert not (project / missing_path).exists(), (
+            f'{missing_path} should not have been rendered'
+        )
 
 
 def _markdown_files(
@@ -233,11 +252,7 @@ class TestGitHostingServiceRendering:
             **extra_context,
         )
 
-        for expected_path in expected_paths:
-            assert (project / expected_path).exists()
-
-        for missing_path in missing_paths:
-            assert not (project / missing_path).exists()
+        _assert_paths(project, existing=expected_paths, missing=missing_paths)
 
         assert expected_text in (project / 'CONTRIBUTING.md').read_text(
             encoding='utf-8',
@@ -490,11 +505,7 @@ class TestOptionalDocuments:
             **extra_context,
         )
 
-        for missing_path in missing_paths:
-            assert not (project / missing_path).exists()
-
-        for expected_path in expected_paths:
-            assert (project / expected_path).exists()
+        _assert_paths(project, existing=expected_paths, missing=missing_paths)
 
 
 class TestGeneratedDocumentLinks:
@@ -502,12 +513,7 @@ class TestGeneratedDocumentLinks:
 
     @pytest.mark.parametrize(
         'git_service',
-        [
-            'GitHub',
-            'GitLab',
-            'Bitbucket',
-            'Azure DevOps',
-        ],
+        GIT_SERVICES,
     )
     def test_contributing_avoids_unrendered_operational_links(
         self,
@@ -528,12 +534,7 @@ class TestGeneratedDocumentLinks:
 
     @pytest.mark.parametrize(
         'git_service',
-        [
-            'GitHub',
-            'GitLab',
-            'Bitbucket',
-            'Azure DevOps',
-        ],
+        GIT_SERVICES,
     )
     def test_generated_markdown_links_point_to_existing_files(
         self,
@@ -651,20 +652,11 @@ class TestGeneratedOutputQuality:
         """Test that documented host-specific paths match rendered output."""
         project = render_project(git_service=git_service)
 
-        for expected_path in expected_paths:
-            assert (project / expected_path).exists()
-
-        for missing_path in missing_paths:
-            assert not (project / missing_path).exists()
+        _assert_paths(project, existing=expected_paths, missing=missing_paths)
 
     @pytest.mark.parametrize(
         'git_service',
-        [
-            'GitHub',
-            'GitLab',
-            'Bitbucket',
-            'Azure DevOps',
-        ],
+        GIT_SERVICES,
     )
     def test_rendered_markdown_has_no_unresolved_template_syntax(
         self,
@@ -673,11 +665,11 @@ class TestGeneratedOutputQuality:
     ) -> None:
         """Test that rendered Markdown contains no unresolved Jinja syntax."""
         project = render_project(git_service=git_service)
-        unresolved_patterns = ('{{', '{%', '{#')
-
         for markdown_file in _markdown_files(project):
             markdown = markdown_file.read_text(encoding='utf-8')
-            assert not any(pattern in markdown for pattern in unresolved_patterns), (
+            assert not any(
+                pattern in markdown for pattern in UNRESOLVED_TEMPLATE_PATTERNS
+            ), (
                 f'{markdown_file.relative_to(project)} contains unresolved '
                 'Cookiecutter or Jinja syntax'
             )
