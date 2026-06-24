@@ -41,10 +41,9 @@ def _local_markdown_links(
     """Return local Markdown link targets from a Markdown document."""
     links = []
     for target in re.findall(r'(?<!!)\[[^\]]+\]\(([^)]+)\)', markdown):
-        if (
-            target.startswith(('http://', 'https://', 'mailto:', '#'))
-            or target.startswith('<http')
-        ):
+        if target.startswith(
+            ('http://', 'https://', 'mailto:', '#'),
+        ) or target.startswith('<http'):
             continue
         links.append(target.strip('<>'))
     return links
@@ -147,9 +146,7 @@ class TestGitHostingServiceRendering:
     ) -> None:
         project = render_project(git_service='GitHub')
 
-        assert f"Copyright {datetime.now().year}" in (
-            project / 'LICENSE'
-        ).read_text(
+        assert f'Copyright {datetime.now().year}' in (project / 'LICENSE').read_text(
             encoding='utf-8',
         )
 
@@ -370,8 +367,7 @@ class TestBranchModelRendering:
         contributing = (project / 'CONTRIBUTING.md').read_text(encoding='utf-8')
 
         assert (
-            '- [Protected-Branch Workflow](#protected-branch-workflow)'
-            in contributing
+            '- [Protected-Branch Workflow](#protected-branch-workflow)' in contributing
         )
         assert '## Protected-Branch Workflow' in contributing
         for expected_text in expected_texts:
@@ -379,9 +375,8 @@ class TestBranchModelRendering:
         for missing_text in missing_texts:
             assert missing_text not in contributing
         assert (
-            ('### Recommended Branch Mapping' in contributing)
-            is expects_branch_mapping
-        )
+            '### Recommended Branch Mapping' in contributing
+        ) is expects_branch_mapping
 
     @pytest.mark.parametrize(
         ('branch_model', 'expected_text', 'missing_text'),
