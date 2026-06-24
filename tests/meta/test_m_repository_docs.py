@@ -25,6 +25,51 @@ WORKFLOWS_ROOT = PROJECT_ROOT / '.github' / 'workflows'
 # SECTION: INTERNAL FUNCTIONS =============================================== #
 
 
+def _branch_protection_check_names() -> list[str]:
+    """Return check names documented in branch protection guidance."""
+    branch_protection = (
+        PROJECT_ROOT / '.github' / 'BRANCH-PROTECTION.md'
+    ).read_text(encoding='utf-8')
+    return re.findall(r'`([^`]+)`', branch_protection)
+
+
+def _ci_workflow_check_names() -> list[str]:
+    """Return emitted check names from the CI workflow."""
+    ci_workflow = (WORKFLOWS_ROOT / 'ci.yml').read_text(encoding='utf-8')
+    check_names = []
+
+    precommit_match = re.search(
+        r'precommit:.*?^\s+name:\s+([^\n]+)$',
+        ci_workflow,
+        flags=re.MULTILINE | re.DOTALL,
+    )
+    assert precommit_match is not None
+    check_names.append(precommit_match.group(1).strip())
+
+    test_match = re.search(
+        r'test:.*?^\s+name:\s+([^\n]+)$',
+        ci_workflow,
+        flags=re.MULTILINE | re.DOTALL,
+    )
+    assert test_match is not None
+    test_name_template = test_match.group(1).strip()
+    matrix_section = ci_workflow.split('matrix:', maxsplit=1)[1].split(
+        'permissions:',
+        maxsplit=1,
+    )[0]
+    python_versions = re.findall(
+        r"^\s+- '([^']+)'$",
+        matrix_section,
+        flags=re.MULTILINE,
+    )
+    check_names.extend(
+        test_name_template.replace('${{ matrix.python-version }}', python_version)
+        for python_version in python_versions
+    )
+
+    return check_names
+
+
 def _local_markdown_links(
     markdown: str,
 ) -> list[str]:
@@ -42,6 +87,18 @@ def _local_markdown_links(
         links.append(target.strip('<>'))
 
     return links
+
+
+def _pr_workflow_check_names() -> list[str]:
+    """Return emitted check names from the PR Gates workflow."""
+    pr_workflow = (WORKFLOWS_ROOT / 'pr.yml').read_text(encoding='utf-8')
+    pr_gate_match = re.search(
+        r'pr-target-guard:.*?^\s+name:\s+([^\n]+)$',
+        pr_workflow,
+        flags=re.MULTILINE | re.DOTALL,
+    )
+    assert pr_gate_match is not None
+    return [pr_gate_match.group(1).strip()]
 
 
 def _public_cookiecutter_input_names() -> list[str]:
@@ -163,6 +220,24 @@ class TestCiCdWorkflowMap:
         documented_names = sorted(_workflow_map_overview_names())
 
         assert documented_names == actual_names
+
+
+class TestBranchProtectionDocs:
+    """Meta test suite for branch-protection documentation accuracy."""
+
+    def test_branch_protection_documents_ci_check_names(self) -> None:
+        """Test that branch protection documents current CI check names."""
+        documented_names = _branch_protection_check_names()
+
+        for check_name in _ci_workflow_check_names():
+            assert check_name in documented_names
+
+    def test_branch_protection_documents_pr_gate_check_names(self) -> None:
+        """Test that branch protection documents current PR gate checks."""
+        documented_names = _branch_protection_check_names()
+
+        for check_name in _pr_workflow_check_names():
+            assert check_name in documented_names
 
 
 class TestReadmeGeneratedFileInventory:
