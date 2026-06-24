@@ -44,6 +44,18 @@ def _local_markdown_links(
     return links
 
 
+def _public_cookiecutter_input_names() -> list[str]:
+    """Return public Cookiecutter input names from cookiecutter.json."""
+    config = json.loads(
+        (PROJECT_ROOT / 'cookiecutter.json').read_text(encoding='utf-8'),
+    )
+    return [
+        input_name
+        for input_name in config
+        if not input_name.startswith('__')
+    ]
+
+
 def _readme_generated_paths() -> list[str]:
     """Return generated file paths documented in README.md."""
     readme = (PROJECT_ROOT / 'README.md').read_text(encoding='utf-8')
@@ -52,6 +64,16 @@ def _readme_generated_paths() -> list[str]:
         maxsplit=1,
     )[0]
     return re.findall(r'`([^`]+)`', section)
+
+
+def _readme_input_names() -> list[str]:
+    """Return Cookiecutter input names documented in README.md."""
+    readme = (PROJECT_ROOT / 'README.md').read_text(encoding='utf-8')
+    section = readme.split('## Inputs', maxsplit=1)[1].split(
+        '## Usage',
+        maxsplit=1,
+    )[0]
+    return re.findall(r'^- `([^`]+)`:', section, flags=re.MULTILINE)
 
 
 def _readme_maintainer_doc_entry(
@@ -81,6 +103,15 @@ def _repository_markdown_files() -> list[Path]:
     """Return root repository Markdown files outside the Cookiecutter template."""
     return sorted(PROJECT_ROOT.glob('*.md')) + sorted(
         (PROJECT_ROOT / '.github').glob('*.md'),
+    )
+
+
+def _template_file_paths() -> list[str]:
+    """Return file paths in the Cookiecutter template source."""
+    return sorted(
+        path.relative_to(TEMPLATE_ROOT).as_posix()
+        for path in TEMPLATE_ROOT.rglob('*')
+        if path.is_file()
     )
 
 
@@ -141,12 +172,26 @@ class TestCiCdWorkflowMap:
 class TestReadmeGeneratedFileInventory:
     """Meta test suite for README generated-file inventory."""
 
+    def test_readme_generated_paths_cover_template_source_files(self) -> None:
+        """Test that README documents every template source file."""
+        assert sorted(_readme_generated_paths()) == _template_file_paths()
+
     def test_readme_generated_paths_exist_in_template_source(self) -> None:
         """Test that README generated-file entries exist in the template."""
         for generated_path in _readme_generated_paths():
             assert (TEMPLATE_ROOT / generated_path).exists(), (
                 f'README.md documents missing generated file {generated_path}'
             )
+
+
+class TestReadmeInputs:
+    """Meta test suite for README Cookiecutter input documentation."""
+
+    def test_readme_inputs_cover_public_cookiecutter_inputs(self) -> None:
+        """Test that README documents every public Cookiecutter input."""
+        assert sorted(_readme_input_names()) == sorted(
+            _public_cookiecutter_input_names(),
+        )
 
 
 class TestReferences:
