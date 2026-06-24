@@ -151,3 +151,5 @@ git push origin v1.2.6
 - [x] Normalize branch protection nested check-list indentation.
 - [x] Align CI workflow triggers with the shared protected-branch validation model.
 - [x] Update the CI/CD workflow map for the protected-branch CI trigger model.
+- [x] Align the CI/CD workflow map required-check summary with branch protection guidance.
+- [x] Remove stale CI workflow lint-step TODO commentary.

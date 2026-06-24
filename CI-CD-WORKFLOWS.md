@@ -27,7 +27,8 @@ cookiecutter-repo-governance currently separates automation into 4 workflows:
 - `sbom.yml` for advisory Software Bill of Materials generation
 
 This split keeps required PR checks fast enough to use as branch-protection gates while moving
-template validation, release publication, and supply-chain inspection into separate workflows.
+heavier validation and publication logic into a second stage that can still block protected-branch
+integration when desired.
 
 ## PR Gates
 
@@ -128,6 +129,10 @@ you want repository hygiene and rendered-template validation to block merges.
 At the time of writing, the expected required checks are:
 
 - `Guard PR target branch`
+- `Lint on Python 3.13`
+- `Test on Python 3.13`
+- `Doclint on Python 3.13`
+- `Type-check on Python 3.13`
 
 The natural next checks to require, if you want the heavier protected-branch gate to block merges on
 GitHub too, are:
