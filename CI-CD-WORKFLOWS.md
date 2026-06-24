@@ -19,7 +19,7 @@ credential handling, or emergency operator procedures.
 
 ## Workflow Overview
 
-cookiecutter-repo-governance currently separates automation into fo4ur workflows:
+cookiecutter-repo-governance currently separates automation into 4 workflows:
 
 - `pr.yml` for required pull-request and merge-queue gates
 - `ci.yml` for heavier pre-merge validation on protected branches and merge queue
@@ -70,8 +70,7 @@ Current responsibilities:
 - Run integration and meta tests for rendered Cookiecutter output and repository documentation
 
 This workflow runs on pull requests into `main` and `develop`, on `merge_group` for those same
-protected branches, on pushes to supported GitFlow working branches, and manually via
-`workflow_dispatch`.
+protected branches, and manually via `workflow_dispatch`.
 
 ## Release
 
