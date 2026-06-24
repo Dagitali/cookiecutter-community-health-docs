@@ -8,8 +8,8 @@
 # Responsibilities
 # - Run required pull-request and merge-queue branch-policy gates for GitFlow
 #   target branches.
-# - Run the lightweight branch-policy baseline on GitFlow branches so working-
-#   branch pushes get fast remote feedback before a PR is opened.
+# - Run the lightweight baseline on GitFlow branches so working-branch pushes
+#   get fast remote feedback before a PR is opened.
 #
 # Maintainer Notes
 # - Global permissions are intentionally omitted; each job declares the minimum
