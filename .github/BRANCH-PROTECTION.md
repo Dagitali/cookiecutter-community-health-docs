@@ -71,8 +71,8 @@ into `main` and `develop` if you want the heavier pre-merge workflow to block th
 
 #### Current Required Check Names To Select In GitHub
 
-When configuring `main` or `develop` branch protection rules in the GitHub UI, select this PR-gate
-job name as the minimum required check:
+When configuring `main` or `develop` branch protection rules in the GitHub UI, select these PR-gate
+job names as the minimum required checks:
 
 - `Guard PR target branch`
 
@@ -85,14 +85,14 @@ job name as the minimum required check:
 
 ### Current Advisory Examples
 
-In the current CI workflow, those advisory categories resolve to:
+In the current PR-gates workflow, those advisory categories do not resolve to separate checks;
+advisory validation currently lives in `ci.yml`.
+
+In the current CI workflow, those advisory categories include:
 
 - `Repository hygiene checks`
 - `Template validation on Python 3.13`
 - `Template validation on Python 3.14`
-
-The current PR-gates workflow does not emit separate advisory checks; advisory validation currently
-lives in `ci.yml`.
 
 If you want the heavier pre-merge workflow to block normal pull-request merges into `main` and
 `develop`, the natural next checks to add are:
@@ -211,7 +211,7 @@ In GitHub:
 3. Open the branch protection rule for `main`.
 4. Under `Require status checks to pass`, remove any stale checks emitted by the heavier CI or old
    workflow filenames.
-5. Add this minimum required check from `pr.yml`:
+5. Add these minimum required checks from `pr.yml`:
   - `Guard PR target branch`
 6. If you want the heavier pre-merge `ci.yml` workflow to block ordinary pull-request merges into
    `main` and `develop`, also add these checks:
