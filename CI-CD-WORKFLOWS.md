@@ -115,7 +115,7 @@ The workflows intentionally do not form a single linear chain.
 
 - `PR Gates` is the required branch-protection workflow.
 - `CI` runs alongside `PR Gates` when protected-branch pull requests or merge-queue entries need
-  the heavier repository-hygiene and template-validation set.
+  the heavier validation set.
 - `Release` does not run because `CI` succeeded; it runs only when a release tag is pushed.
 - `SBOM` is advisory and does not publish releases.
 
@@ -124,7 +124,7 @@ That means a successful `ci.yml` run is a confidence signal, not a publication t
 ## Required Checks
 
 Protected branches must require checks from `PR Gates`. They may also require checks from `CI` when
-you want repository hygiene and rendered-template validation to block merges.
+you want the heavier protected-branch validation workflow to block merges.
 
 At the time of writing, the expected required checks are:
 
