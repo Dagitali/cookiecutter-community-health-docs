@@ -33,9 +33,7 @@ WORKFLOWS_ROOT = PROJECT_ROOT / '.github' / 'workflows'
 # SECTION: INTERNAL FUNCTIONS =============================================== #
 
 
-def _branch_protection_check_names() -> tuple[str, ...]:
-    """Return check names documented in branch protection guidance."""
-    return tuple(re.findall(r'`([^`]+)`', _branch_protection_text()))
+# -- Document Text Helpers -- #
 
 
 @cache
@@ -59,9 +57,149 @@ def _references_text() -> str:
 
 
 @cache
+def _release_checklist_text() -> str:
+    """Return release checklist text."""
+    return (PROJECT_ROOT / 'RELEASE-CHECKLIST.md').read_text(encoding='utf-8')
+
+
+@cache
 def _workflow_map_text() -> str:
     """Return CI/CD workflow-map text."""
     return (PROJECT_ROOT / 'CI-CD-WORKFLOWS.md').read_text(encoding='utf-8')
+
+
+# -- Markdown Helpers -- #
+
+
+def _documented_workflow_paths(markdown: str) -> tuple[Path, ...]:
+    """Return GitHub Actions workflow paths documented in Markdown text."""
+    return tuple(
+        PROJECT_ROOT / workflow_path
+        for workflow_path in re.findall(
+            r'`?(\.github/workflows/[A-Za-z0-9_.-]+\.yml)`?',
+            markdown,
+        )
+    )
+
+
+def _markdown_h2_anchors(markdown: str) -> tuple[str, ...]:
+    """Return second-level heading anchors from Markdown text."""
+    return tuple(
+        _markdown_heading_anchor(match.group(1))
+        for line in _markdown_lines_outside_fenced_blocks(markdown)
+        if (match := re.match(r'^##\s+(.+?)\s*#*$', line))
+    )
+
+
+def _markdown_has_h1(markdown: str) -> bool:
+    """Return whether Markdown text has a first-level heading."""
+    return any(
+        line.startswith('# ')
+        for line in _markdown_lines_outside_fenced_blocks(markdown)
+    )
+
+
+def _markdown_heading_anchor(heading_text: str) -> str:
+    """Return the GitHub-style heading anchor for Markdown heading text."""
+    normalized = re.sub(r'[`*_]', '', heading_text).casefold()
+    normalized = re.sub(r'[^\w\s-]', '', normalized)
+    return re.sub(r'\s+', '-', normalized.strip())
+
+
+def _markdown_lines_outside_fenced_blocks(markdown: str) -> tuple[str, ...]:
+    """Return Markdown lines outside fenced code blocks."""
+    in_fenced_block = False
+    lines: list[str] = []
+    for line in markdown.splitlines():
+        if line.startswith('```'):
+            in_fenced_block = not in_fenced_block
+            continue
+        if not in_fenced_block:
+            lines.append(line)
+    return tuple(lines)
+
+
+def _markdown_toc_anchors_before_first_h2(markdown: str) -> tuple[str, ...]:
+    """Return local TOC anchors documented before the first second-level heading."""
+    lines_before_first_h2: list[str] = []
+    for line in _markdown_lines_outside_fenced_blocks(markdown):
+        if line.startswith('## '):
+            break
+        lines_before_first_h2.append(line)
+    return tuple(
+        match.group(1)
+        for line in lines_before_first_h2
+        if (match := re.match(r'\s*- \[[^\]]+\]\(#([^)]+)\)', line))
+    )
+
+
+# -- Repository Inventory Helpers -- #
+
+
+def _repository_markdown_files() -> tuple[Path, ...]:
+    """Return root repository Markdown files outside the Cookiecutter template."""
+    return (
+        *sorted(PROJECT_ROOT.glob('*.md')),
+        *sorted((PROJECT_ROOT / '.github').glob('*.md')),
+    )
+
+
+# -- README Parsers -- #
+
+
+@cache
+def _readme_generated_paths() -> tuple[str, ...]:
+    """Return generated file paths documented in README.md."""
+    section = (
+        _readme_text()
+        .split('## Generated files', maxsplit=1)[1]
+        .split(
+            '## Inputs',
+            maxsplit=1,
+        )[0]
+    )
+    return tuple(re.findall(r'`([^`]+)`', section))
+
+
+@cache
+def _readme_input_names() -> tuple[str, ...]:
+    """Return Cookiecutter input names documented in README.md."""
+    section = (
+        _readme_text()
+        .split('## Inputs', maxsplit=1)[1]
+        .split(
+            '## Usage',
+            maxsplit=1,
+        )[0]
+    )
+    return tuple(re.findall(r'^- `([^`]+)`:', section, flags=re.MULTILINE))
+
+
+@cache
+def _readme_maintainer_doc_entry(
+    link_target: str,
+) -> str:
+    """Return the README maintainer-doc bullet for a link target."""
+    section = (
+        _readme_text()
+        .split('### Maintainer Docs', maxsplit=1)[1]
+        .split(
+            '## License',
+            maxsplit=1,
+        )[0]
+    )
+    pattern = rf'(?ms)^- \[[^\]]+\]\({re.escape(link_target)}\):.*?(?=^- |\Z)'
+    match = re.search(pattern, section)
+    assert match is not None
+    return match.group(0)
+
+
+# -- Workflow and Check Parsers -- #
+
+
+def _branch_protection_check_names() -> tuple[str, ...]:
+    """Return check names documented in branch protection guidance."""
+    return tuple(re.findall(r'`([^`]+)`', _branch_protection_text()))
 
 
 @cache
@@ -134,67 +272,23 @@ def _pr_workflow_check_names() -> tuple[str, ...]:
 
 
 @cache
-def _readme_generated_paths() -> tuple[str, ...]:
-    """Return generated file paths documented in README.md."""
-    section = (
-        _readme_text()
-        .split('## Generated files', maxsplit=1)[1]
-        .split(
-            '## Inputs',
-            maxsplit=1,
-        )[0]
-    )
-    return tuple(re.findall(r'`([^`]+)`', section))
-
-
-@cache
-def _readme_input_names() -> tuple[str, ...]:
-    """Return Cookiecutter input names documented in README.md."""
-    section = (
-        _readme_text()
-        .split('## Inputs', maxsplit=1)[1]
-        .split(
-            '## Usage',
-            maxsplit=1,
-        )[0]
-    )
-    return tuple(re.findall(r'^- `([^`]+)`:', section, flags=re.MULTILINE))
-
-
-@cache
-def _readme_maintainer_doc_entry(
-    link_target: str,
-) -> str:
-    """Return the README maintainer-doc bullet for a link target."""
-    section = (
-        _readme_text()
-        .split('### Maintainer Docs', maxsplit=1)[1]
-        .split(
-            '## License',
-            maxsplit=1,
-        )[0]
-    )
-    pattern = rf'(?ms)^- \[[^\]]+\]\({re.escape(link_target)}\):.*?(?=^- |\Z)'
-    match = re.search(pattern, section)
-    assert match is not None
-    return match.group(0)
-
-
-def _repository_markdown_files() -> tuple[Path, ...]:
-    """Return root repository Markdown files outside the Cookiecutter template."""
-    return (
-        *sorted(PROJECT_ROOT.glob('*.md')),
-        *sorted((PROJECT_ROOT / '.github').glob('*.md')),
-    )
-
-
-@cache
 def _workflow_map_file_paths() -> tuple[Path, ...]:
     """Return workflow file paths documented in CI-CD-WORKFLOWS.md."""
     return tuple(
         PROJECT_ROOT / workflow_path
         for workflow_path in re.findall(
             r'Workflow file: `([^`]+)`',
+            _workflow_map_text(),
+        )
+    )
+
+
+def _workflow_map_entries() -> tuple[tuple[Path, str], ...]:
+    """Return workflow file/name pairs documented in CI-CD-WORKFLOWS.md."""
+    return tuple(
+        (PROJECT_ROOT / path, name)
+        for path, name in re.findall(
+            r'Workflow file: `([^`]+)`\s+Workflow name: `([^`]+)`',
             _workflow_map_text(),
         )
     )
@@ -219,6 +313,17 @@ def _workflow_map_required_check_names() -> tuple[str, ...]:
     """Return check names documented in the CI/CD workflow map."""
     section = _workflow_map_text().split('## Required Checks', maxsplit=1)[1]
     return tuple(re.findall(r'`([^`]+)`', section))
+
+
+def _workflow_names() -> dict[Path, str]:
+    """Return workflow display names keyed by workflow file path."""
+    workflow_names: dict[Path, str] = {}
+    for path in WORKFLOWS_ROOT.glob('*.yml'):
+        workflow_text = path.read_text(encoding='utf-8')
+        match = re.search(r'^name:\s+(.+)$', workflow_text, flags=re.MULTILINE)
+        assert match is not None
+        workflow_names[path] = match.group(1).strip()
+    return workflow_names
 
 
 # SECTION: TESTS ============================================================ #
@@ -272,6 +377,13 @@ class TestCiCdWorkflowMap:
         documented_workflows = sorted(_workflow_map_file_paths())
 
         assert documented_workflows == actual_workflows
+
+    def test_workflow_map_names_match_workflow_files(self) -> None:
+        """Test that the CI/CD map names each workflow by its YAML name."""
+        workflow_names = _workflow_names()
+
+        for workflow_path, documented_name in _workflow_map_entries():
+            assert workflow_names[workflow_path] == documented_name
 
     def test_workflow_overview_lists_all_github_actions_workflow_names(self) -> None:
         """Test that the CI/CD overview names every workflow file."""
@@ -341,6 +453,31 @@ class TestRootMarkdown:
         _repository_markdown_files(),
         ids=lambda path: path.relative_to(PROJECT_ROOT).as_posix(),
     )
+    def test_root_markdown_toc_covers_second_level_headings(
+        self,
+        markdown_file: Path,
+    ) -> None:
+        """Test that root Markdown TOCs cover second-level headings."""
+        markdown = markdown_file.read_text(encoding='utf-8')
+        if not _markdown_has_h1(markdown):
+            return
+
+        h2_anchors = _markdown_h2_anchors(markdown)
+        if not h2_anchors:
+            return
+
+        toc_anchors = _markdown_toc_anchors_before_first_h2(markdown)
+
+        assert set(h2_anchors) <= set(toc_anchors), (
+            f'{markdown_file.relative_to(PROJECT_ROOT)} has H2 headings missing '
+            'from the opening table of contents'
+        )
+
+    @pytest.mark.parametrize(
+        'markdown_file',
+        _repository_markdown_files(),
+        ids=lambda path: path.relative_to(PROJECT_ROOT).as_posix(),
+    )
     def test_root_markdown_has_no_unresolved_template_syntax(
         self,
         markdown_file: Path,
@@ -376,4 +513,32 @@ class TestRootMarkdown:
             assert (markdown_file.parent / target).exists(), (
                 f'{markdown_file.relative_to(PROJECT_ROOT)} links to '
                 f'missing target {link}'
+            )
+
+
+class TestWorkflowReferences:
+    """Meta test suite for workflow-reference documentation accuracy."""
+
+    @pytest.mark.parametrize(
+        ('document_name', 'markdown'),
+        [
+            ('RELEASE-CHECKLIST.md', _release_checklist_text()),
+            ('CI-CD-WORKFLOWS.md', _workflow_map_text()),
+            ('.github/BRANCH-PROTECTION.md', _branch_protection_text()),
+        ],
+        ids=lambda case: case if isinstance(case, str) else None,
+    )
+    def test_documented_workflow_paths_exist(
+        self,
+        document_name: str,
+        markdown: str,
+    ) -> None:
+        """Test that documented GitHub Actions workflow paths exist."""
+        documented_paths = _documented_workflow_paths(markdown)
+        assert documented_paths, f'{document_name} documents no workflow paths'
+
+        for workflow_path in documented_paths:
+            assert workflow_path.exists(), (
+                f'{document_name} documents missing workflow '
+                f'{workflow_path.relative_to(PROJECT_ROOT)}'
             )
