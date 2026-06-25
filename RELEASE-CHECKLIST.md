@@ -182,3 +182,4 @@ git push origin v1.2.6
 - [x] Add generated release-checklist structure coverage.
 - [x] Add root Markdown table-of-contents guardrails.
 - [x] Add workflow-reference drift checks for release, workflow-map, and branch-protection docs.
+- [x] Add README and generated release-checklist documentation alignment checks.
