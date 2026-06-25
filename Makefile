@@ -69,7 +69,11 @@ RENDER_OUTPUT_DIR ?= /tmp/cookiecutter-repo-governance-render
 #   make dev PY=python3.14
 PY ?= python3
 
-VENV_DIR ?= .venv
+# Package root (where pyproject.toml lives)
+PKG_DIR := .
+
+# Virtualenv lives inside the package folder
+VENV_DIR := $(PKG_DIR)/.venv
 
 # Python formatter width; keep aligned with .ruff.toml:line-length.
 PY_LINE_LENGTH ?= 88
@@ -109,7 +113,7 @@ clean: ## Remove local build, test, and cache artifacts
 	find . -name '__pycache__' -type d -prune -exec rm -rf {} + 2>/dev/null || true
 	find . -name '.pytest_cache' -type d -prune -exec rm -rf {} + 2>/dev/null || true
 	find . -name '.ruff_cache' -type d -prune -exec rm -rf {} + 2>/dev/null || true
-	rm -rf .mypy_cache build dist *.egg-info
+	rm -rf "$(PKG_DIR)/.mypy_cache" "$(PKG_DIR)/build" "$(PKG_DIR)/dist" "$(PKG_DIR)"/*.egg-info
 
 .PHONY: clean-venv
 clean-venv: ## Remove the local virtual environment
@@ -117,7 +121,7 @@ clean-venv: ## Remove the local virtual environment
 
 .PHONY: dev
 dev: venv ## Install development dependencies into the local virtual environment
-	$(PIP) install -e ".[dev]"
+	$(PIP) install -e "$(PKG_DIR)[dev]"
 
 .PHONY: doclint
 doclint: dev ## Run docstring linters
@@ -141,6 +145,10 @@ fmt: fix ## Format Python files with autopep8 normalization
 help: ## Show available targets
 	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z0-9_.-]+:.*## / {printf "%-16s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
+.PHONY: install
+install: venv ## Install the package in editable mode
+	$(PIP) install -e "$(PKG_DIR)"
+
 .PHONY: lint
 lint: dev ## Run Python lint and formatting-drift checks
 	$(PYTHON) -m ruff check .
@@ -162,6 +170,7 @@ render: dev ## Render a sample project into RENDER_OUTPUT_DIR
 
 .PHONY: show-venv
 show-venv: ## Print venv and interpreter locations
+	@echo "PKG_DIR    = $(PKG_DIR)"
 	@echo "VENV_DIR   = $(VENV_DIR)"
 	@echo "VENV_BIN   = $(VENV_BIN)"
 	@echo "PYTHON     = $(PYTHON)"
