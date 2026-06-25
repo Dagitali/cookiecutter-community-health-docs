@@ -21,14 +21,17 @@
 # References
 # - GNU Make documentation: https://www.gnu.org/software/make/manual/make.html
 # - GNU Make conventions reference: https://www.gnu.org/prep/standards/html_node/Makefile-Conventions.html
+# - GNU Make include directive reference: https://www.gnu.org/software/make/manual/html_node/Include.html
 # - Cookiecutter documentation: https://cookiecutter.readthedocs.io/
+# - Python Makefile guide: https://earthly.dev/blog/python-makefile/
+# - Python virtualenv Makefile guide: https://stackoverflow.com/questions/24736146/how-to-use-virtualenv-in-makefile
 #
 # Common Flows
 #
-# 1) Create venv + install dev tooling and the template package (editable).
+# 1) Create venv + install dev tooling and the package (editable).
 # $ make dev
 #
-# 2) Run static checks and tests.
+# 2) Run static checks & tests.
 # $ make check
 #
 # 3) Render a disposable sample project for inspection.
@@ -37,9 +40,15 @@
 # 4) Run the release-readiness command.
 # $ make release-check
 #
-# 5) Clean local artifacts or remove the venv.
+# 5) Clean build artifacts or nuke the venv.
 # $ make clean
 # $ make clean-venv
+
+
+# SECTION: INCLUDES ========================================================= #
+
+
+-include .env
 
 
 # SECTION: VARIABLES ======================================================== #
@@ -69,9 +78,11 @@ PY_LINE_LENGTH ?= 88
 ifeq ($(OS),Windows_NT)
 	VENV_BIN := $(VENV_DIR)/Scripts
 	PYTHON := $(VENV_BIN)/python.exe
+	PIP := $(VENV_BIN)/pip.exe
 else
 	VENV_BIN := $(VENV_DIR)/bin
 	PYTHON := $(VENV_BIN)/python
+	PIP := $(VENV_BIN)/pip
 endif
 
 
@@ -94,7 +105,7 @@ clean-venv: ## Remove the local virtual environment
 
 .PHONY: dev
 dev: venv ## Install development dependencies into the local virtual environment
-	$(PYTHON) -m pip install -e ".[dev]"
+	$(PIP) install -e ".[dev]"
 
 .PHONY: help
 help: ## Show available targets
@@ -119,6 +130,13 @@ render: dev ## Render a sample project into RENDER_OUTPUT_DIR
 	rm -rf "$(RENDER_OUTPUT_DIR)"
 	$(PYTHON) -m cookiecutter . --no-input --output-dir "$(RENDER_OUTPUT_DIR)"
 
+.PHONY: show-venv
+show-venv: ## Print venv and interpreter locations
+	@echo "VENV_DIR   = $(VENV_DIR)"
+	@echo "VENV_BIN   = $(VENV_BIN)"
+	@echo "PYTHON     = $(PYTHON)"
+	@echo "PIP        = $(PIP)"
+
 .PHONY: test
 test: dev ## Run pytest
 	$(PYTHON) -m pytest -q tests
@@ -130,4 +148,4 @@ test-meta: dev ## Run repository meta guardrail tests
 .PHONY: venv
 venv: ## Create the local virtual environment
 	$(PY) -m venv "$(VENV_DIR)"
-	$(PYTHON) -m pip install --upgrade pip
+	$(PIP) install --upgrade pip
