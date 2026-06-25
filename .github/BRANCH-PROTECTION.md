@@ -158,8 +158,7 @@ Recommended baseline:
 
 - Require the full pull-request baseline from `pr.yml`.
 - Consider also requiring the heavier `ci.yml` jobs on `main` if you want release-oriented pull
-  requests into `main` to satisfy the extended repository hygiene and template validation before
-  merge.
+  requests into `main` to satisfy the extended validation before merge.
 
 Optional hardening:
 
@@ -181,7 +180,7 @@ Recommended baseline:
 
 - Require the full pull-request baseline from `pr.yml`.
 - Consider also requiring the heavier `ci.yml` jobs on `develop` if you want the extended
-  repository hygiene and template validation to block feature integration into `develop`.
+  validation to block feature integration into `develop`.
 
 Optional hardening:
 
