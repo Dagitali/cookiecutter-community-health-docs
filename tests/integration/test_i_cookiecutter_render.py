@@ -7,6 +7,7 @@ template.
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable
 from collections.abc import Iterable
 from datetime import datetime
@@ -61,6 +62,43 @@ def _assert_text(
 
     for missing_text in omits:
         assert missing_text not in text
+
+
+def _markdown_heading_anchor(
+    heading_text: str,
+) -> str:
+    """Return the GitHub-style heading anchor for Markdown heading text."""
+    normalized = re.sub(r'[`*_]', '', heading_text).casefold()
+    normalized = re.sub(r'[^\w\s-]', '', normalized)
+    return re.sub(r'\s+', '-', normalized.strip())
+
+
+def _markdown_heading_anchors(
+    markdown: str,
+) -> set[str]:
+    """Return heading anchors available in a Markdown document."""
+    anchors: set[str] = set()
+    in_fenced_block = False
+    for line in markdown.splitlines():
+        if line.startswith('```'):
+            in_fenced_block = not in_fenced_block
+            continue
+        if in_fenced_block:
+            continue
+        match = re.match(r'#{1,6}\s+(.+?)\s*#*$', line)
+        if match is not None:
+            anchors.add(_markdown_heading_anchor(match.group(1)))
+    return anchors
+
+
+def _markdown_internal_links(
+    markdown: str,
+) -> tuple[str, ...]:
+    """Return internal anchor links from a Markdown document."""
+    return tuple(
+        link.removeprefix('#').split('#', maxsplit=1)[0]
+        for link in re.findall(r'(?<!!)\[[^\]]+\]\((#[^)]+)\)', markdown)
+    )
 
 
 # SECTION: TESTS ============================================================ #
@@ -495,6 +533,27 @@ class TestGeneratedDocumentLinks:
                 assert (markdown_file.parent / target).exists(), (
                     f'{markdown_file.relative_to(project)} links to missing '
                     f'target {link}'
+                )
+
+    @pytest.mark.parametrize(
+        'git_service',
+        SUPPORTED_GIT_SERVICES,
+    )
+    def test_generated_markdown_links_point_to_existing_heading_anchors(
+        self,
+        render_project: RenderProject,
+        git_service: str,
+    ) -> None:
+        """Test that generated internal Markdown links resolve to headings."""
+        project = render_project(git_service=git_service)
+
+        for markdown_file in markdown_files(project):
+            markdown = markdown_file.read_text(encoding='utf-8')
+            heading_anchors = _markdown_heading_anchors(markdown)
+            for anchor in _markdown_internal_links(markdown):
+                assert anchor in heading_anchors, (
+                    f'{markdown_file.relative_to(project)} links to missing '
+                    f'heading anchor #{anchor}'
                 )
 
     @pytest.mark.parametrize(
