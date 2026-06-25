@@ -179,3 +179,6 @@ git push origin v1.2.6
 - [x] Cache repository-doc metadata helpers and add stable workflow-source test IDs.
 - [x] Return immutable tuples from repository-doc metadata helpers.
 - [x] Centralize cached repository-document text reads in meta tests.
+- [x] Add generated release-checklist structure coverage.
+- [x] Add root Markdown table-of-contents guardrails.
+- [x] Add workflow-reference drift checks for release, workflow-map, and branch-protection docs.
