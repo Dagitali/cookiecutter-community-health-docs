@@ -63,6 +63,12 @@ def _release_checklist_text() -> str:
 
 
 @cache
+def _template_release_checklist_text() -> str:
+    """Return template release-checklist source text."""
+    return (TEMPLATE_ROOT / 'RELEASE-CHECKLIST.md').read_text(encoding='utf-8')
+
+
+@cache
 def _workflow_map_text() -> str:
     """Return CI/CD workflow-map text."""
     return (PROJECT_ROOT / 'CI-CD-WORKFLOWS.md').read_text(encoding='utf-8')
@@ -142,6 +148,24 @@ def _repository_markdown_files() -> tuple[Path, ...]:
         *sorted(PROJECT_ROOT.glob('*.md')),
         *sorted((PROJECT_ROOT / '.github').glob('*.md')),
     )
+
+
+def _template_release_checklist_doc_paths() -> tuple[str, ...]:
+    """Return documentation paths referenced by the template release checklist."""
+    markdown_links = tuple(
+        link.split('#', maxsplit=1)[0]
+        for link in local_markdown_links(_template_release_checklist_text())
+        if link.split('#', maxsplit=1)[0]
+    )
+    backtick_paths = tuple(
+        path
+        for path in re.findall(
+            r'`([^`]+\.(?:md|yml|yaml))`',
+            _template_release_checklist_text(),
+        )
+        if '{{' not in path
+    )
+    return tuple(sorted({*markdown_links, *backtick_paths}))
 
 
 # -- README Parsers -- #
@@ -396,6 +420,18 @@ class TestCiCdWorkflowMap:
 class TestReadmeGeneratedFileInventory:
     """Meta test suite for README generated-file inventory."""
 
+    def test_readme_generated_paths_cover_release_checklist_doc_references(
+        self,
+    ) -> None:
+        """Test that README inventory covers docs referenced by release checklist."""
+        documented_paths = set(_readme_generated_paths())
+        expected_paths = {
+            'RELEASE-CHECKLIST.md',
+            *_template_release_checklist_doc_paths(),
+        }
+
+        assert expected_paths <= documented_paths
+
     def test_readme_generated_paths_cover_template_source_files(self) -> None:
         """Test that README documents every template source file."""
         template_paths = sorted(
@@ -443,6 +479,22 @@ class TestReferences:
         heading = f'### {git_service}'
 
         assert heading in _references_text()
+
+
+class TestReleaseChecklistTemplateDocs:
+    """Meta test suite for generated release-checklist source references."""
+
+    @pytest.mark.parametrize(
+        'referenced_path',
+        _template_release_checklist_doc_paths(),
+        ids=str,
+    )
+    def test_release_checklist_doc_references_exist_in_template_source(
+        self,
+        referenced_path: str,
+    ) -> None:
+        """Test that release-checklist doc references exist in template source."""
+        assert (TEMPLATE_ROOT / referenced_path).exists()
 
 
 class TestRootMarkdown:
