@@ -242,50 +242,6 @@ class TestGitHostingServiceRendering:
         )
 
     @pytest.mark.parametrize(
-        ('git_service', 'expected_text', 'missing_text'),
-        [
-            (
-                'GitHub',
-                'Draft release notes using `.github/RELEASE-NOTES-TEMPLATE.md`.',
-                'Draft release notes for the selected release channel.',
-            ),
-            (
-                'GitLab',
-                'Draft release notes for the selected release channel.',
-                '.github/RELEASE-NOTES-TEMPLATE.md',
-            ),
-            (
-                'Bitbucket',
-                'Draft release notes for the selected release channel.',
-                '.github/RELEASE-NOTES-TEMPLATE.md',
-            ),
-            (
-                'Azure DevOps',
-                'Draft release notes for the selected release channel.',
-                '.github/RELEASE-NOTES-TEMPLATE.md',
-            ),
-        ],
-    )
-    def test_release_checklist_release_notes_match_host(
-        self,
-        render_project: RenderProject,
-        git_service: str,
-        expected_text: str,
-        missing_text: str,
-    ) -> None:
-        """Test that release-note guidance matches the rendered host."""
-        project = render_project(git_service=git_service)
-        release_checklist = (project / 'RELEASE-CHECKLIST.md').read_text(
-            encoding='utf-8',
-        )
-
-        _assert_text(
-            release_checklist,
-            contains=[expected_text],
-            omits=[missing_text],
-        )
-
-    @pytest.mark.parametrize(
         ('git_service', 'expected_url'),
         [
             (
@@ -411,87 +367,79 @@ class TestBranchModelRendering:
         )
 
 
-class TestOptionalDocuments:
-    """Integration test suite for optional generated documents."""
+class TestGeneratedReleaseChecklist:
+    """Integration test suite for generated release-checklist structure."""
+
+    @pytest.mark.parametrize('git_service', SUPPORTED_GIT_SERVICES)
+    def test_release_checklist_keeps_release_sections(
+        self,
+        render_project: RenderProject,
+        git_service: str,
+    ) -> None:
+        """Test that generated release checklists keep the expected sections."""
+        project = render_project(git_service=git_service)
+        release_checklist = (project / 'RELEASE-CHECKLIST.md').read_text(
+            encoding='utf-8',
+        )
+
+        _assert_text(
+            release_checklist,
+            contains=[
+                '# Release Checklist And Stable-Line Maintenance',
+                '- [Pre-Release](#pre-release)',
+                '- [Release](#release)',
+                '- [Post-Release](#post-release)',
+                '- [Stable-Line Maintenance](#stable-line-maintenance)',
+                '## Pre-Release',
+                '## Release',
+                '## Post-Release',
+                '## Stable-Line Maintenance',
+            ],
+        )
 
     @pytest.mark.parametrize(
-        ('extra_context', 'missing_paths', 'expected_paths'),
+        ('git_service', 'expected_text', 'missing_text'),
         [
             (
-                {'include_release_docs': 'no'},
-                [
-                    'RELEASE-POLICY.md',
-                    'RELEASE-CHECKLIST.md',
-                    '.github/RELEASE-NOTES-TEMPLATE.md',
-                ],
-                [
-                    '.github/BRANCH-PROTECTION.md',
-                    '.github/MAINTAINER-RUNBOOKS.md',
-                ],
+                'GitHub',
+                'Draft release notes using `.github/RELEASE-NOTES-TEMPLATE.md`.',
+                'Draft release notes for the selected release channel.',
             ),
             (
-                {'include_branch_protection_docs': 'no'},
-                ['.github/BRANCH-PROTECTION.md'],
-                [
-                    'RELEASE-POLICY.md',
-                    'RELEASE-CHECKLIST.md',
-                    '.github/MAINTAINER-RUNBOOKS.md',
-                ],
+                'GitLab',
+                'Draft release notes for the selected release channel.',
+                '.github/RELEASE-NOTES-TEMPLATE.md',
             ),
             (
-                {'include_maintainer_runbooks': 'no'},
-                ['.github/MAINTAINER-RUNBOOKS.md'],
-                [
-                    'RELEASE-POLICY.md',
-                    'RELEASE-CHECKLIST.md',
-                    '.github/BRANCH-PROTECTION.md',
-                ],
+                'Bitbucket',
+                'Draft release notes for the selected release channel.',
+                '.github/RELEASE-NOTES-TEMPLATE.md',
             ),
             (
-                {'include_references': 'no'},
-                ['REFERENCES.md'],
-                [
-                    'RELEASE-POLICY.md',
-                    'RELEASE-CHECKLIST.md',
-                    '.github/BRANCH-PROTECTION.md',
-                ],
-            ),
-            (
-                {'include_agents_md': 'no'},
-                ['AGENTS.md'],
-                [
-                    'RELEASE-POLICY.md',
-                    'RELEASE-CHECKLIST.md',
-                    '.github/BRANCH-PROTECTION.md',
-                ],
-            ),
-            (
-                {
-                    'include_funding': 'no',
-                    'sponsor_url': 'https://example.com/sponsor',
-                },
-                ['.github/FUNDING.yml'],
-                [
-                    'RELEASE-POLICY.md',
-                    'RELEASE-CHECKLIST.md',
-                    '.github/BRANCH-PROTECTION.md',
-                ],
+                'Azure DevOps',
+                'Draft release notes for the selected release channel.',
+                '.github/RELEASE-NOTES-TEMPLATE.md',
             ),
         ],
     )
-    def test_optional_documents_can_be_removed(
+    def test_release_checklist_release_notes_match_host(
         self,
         render_project: RenderProject,
-        extra_context: dict[str, str],
-        missing_paths: list[str],
-        expected_paths: list[str],
+        git_service: str,
+        expected_text: str,
+        missing_text: str,
     ) -> None:
-        project = render_project(
-            git_service='GitHub',
-            **extra_context,
+        """Test that release-note guidance matches the rendered host."""
+        project = render_project(git_service=git_service)
+        release_checklist = (project / 'RELEASE-CHECKLIST.md').read_text(
+            encoding='utf-8',
         )
 
-        _assert_paths(project, existing=expected_paths, missing=missing_paths)
+        _assert_text(
+            release_checklist,
+            contains=[expected_text],
+            omits=[missing_text],
+        )
 
 
 class TestGeneratedDocumentLinks:
@@ -667,6 +615,89 @@ class TestGeneratedOutputQuality:
                 f'{markdown_file.relative_to(project)} contains unresolved '
                 'Cookiecutter or Jinja syntax'
             )
+
+
+class TestOptionalDocuments:
+    """Integration test suite for optional generated documents."""
+
+    @pytest.mark.parametrize(
+        ('extra_context', 'missing_paths', 'expected_paths'),
+        [
+            (
+                {'include_release_docs': 'no'},
+                [
+                    'RELEASE-POLICY.md',
+                    'RELEASE-CHECKLIST.md',
+                    '.github/RELEASE-NOTES-TEMPLATE.md',
+                ],
+                [
+                    '.github/BRANCH-PROTECTION.md',
+                    '.github/MAINTAINER-RUNBOOKS.md',
+                ],
+            ),
+            (
+                {'include_branch_protection_docs': 'no'},
+                ['.github/BRANCH-PROTECTION.md'],
+                [
+                    'RELEASE-POLICY.md',
+                    'RELEASE-CHECKLIST.md',
+                    '.github/MAINTAINER-RUNBOOKS.md',
+                ],
+            ),
+            (
+                {'include_maintainer_runbooks': 'no'},
+                ['.github/MAINTAINER-RUNBOOKS.md'],
+                [
+                    'RELEASE-POLICY.md',
+                    'RELEASE-CHECKLIST.md',
+                    '.github/BRANCH-PROTECTION.md',
+                ],
+            ),
+            (
+                {'include_references': 'no'},
+                ['REFERENCES.md'],
+                [
+                    'RELEASE-POLICY.md',
+                    'RELEASE-CHECKLIST.md',
+                    '.github/BRANCH-PROTECTION.md',
+                ],
+            ),
+            (
+                {'include_agents_md': 'no'},
+                ['AGENTS.md'],
+                [
+                    'RELEASE-POLICY.md',
+                    'RELEASE-CHECKLIST.md',
+                    '.github/BRANCH-PROTECTION.md',
+                ],
+            ),
+            (
+                {
+                    'include_funding': 'no',
+                    'sponsor_url': 'https://example.com/sponsor',
+                },
+                ['.github/FUNDING.yml'],
+                [
+                    'RELEASE-POLICY.md',
+                    'RELEASE-CHECKLIST.md',
+                    '.github/BRANCH-PROTECTION.md',
+                ],
+            ),
+        ],
+    )
+    def test_optional_documents_can_be_removed(
+        self,
+        render_project: RenderProject,
+        extra_context: dict[str, str],
+        missing_paths: list[str],
+        expected_paths: list[str],
+    ) -> None:
+        project = render_project(
+            git_service='GitHub',
+            **extra_context,
+        )
+
+        _assert_paths(project, existing=expected_paths, missing=missing_paths)
 
 
 class TestReleaseNotesConfiguration:
