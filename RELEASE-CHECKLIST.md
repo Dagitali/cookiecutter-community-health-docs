@@ -90,8 +90,8 @@ Diagnostic fallback commands:
 
 ```bash
 SKIP=no-commit-to-branch pre-commit run --all-files
-ruff check hooks tests
-pytest -q tests
+ruff check .
+pytest -q -m "not perf" tests
 ```
 
 ## Tagging
@@ -190,3 +190,15 @@ git push origin v1.2.6
 - [x] Add README and generated release-checklist documentation alignment checks.
 - [x] Add generated Markdown internal heading-anchor checks.
 - [x] Align release-checklist local command guidance with `make release-check`.
+- [x] Align Makefile release checks with the PR-gates lint and test commands.
+- [x] Add a Makefile target for repository meta guardrail tests.
+- [x] Add Makefile common-flow examples aligned with shared maintainer conventions.
+- [x] Normalize protected-branch and workflow-map wording for extended validation.
+- [x] Align Makefile reference guidance and virtualenv diagnostics with shared maintainer conventions.
+- [x] Add Makefile doclint, typecheck, and pre-push guardrail targets.
+- [x] Add a Makefile CI-local aggregate target adapted to the template release path.
+- [x] Add Makefile test marker configuration and format/fix targets.
+- [x] Add Makefile package-root configuration and editable install target.
+- [x] Align Makefile virtualenv reuse and status output with shared maintainer conventions.
+- [x] Align Makefile help grouping and cleanup wording with shared maintainer conventions.
+- [x] Clarify Makefile local-maintenance wording where it distinguishes workstation checks from CI.
